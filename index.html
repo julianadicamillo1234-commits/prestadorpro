@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PrestadorPro</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
+.app{width:100%;max-width:420px;min-height:100vh;background:#fff;display:flex;flex-direction:column;position:relative}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:32px 24px;gap:24px}
+.logo{font-size:28px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px}
+.logo span{color:#f97316}
+.auth-card{width:100%;background:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.auth-title{font-size:18px;font-weight:600;color:#1a1a1a;text-align:center}
+.auth-sub{font-size:13px;color:#888;text-align:center;margin-top:-8px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:0.04em}
+.field input{padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:14px;color:#1a1a1a;outline:none;transition:border 0.2s}
+.field input:focus{border-color:#f97316}
+.btn-primary{padding:12px;background:#f97316;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.2s}
+.btn-primary:hover{opacity:0.88}
+.btn-google{padding:11px;background:#fff;color:#1a1a1a;border:1px solid #e0e0e0;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-google:hover{background:#f9f9f9}
+.divider{display:flex;align-items:center;gap:8px;color:#bbb;font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#eee}
+.auth-toggle{font-size:13px;color:#888;text-align:center;cursor:pointer}
+.auth-toggle span{color:#f97316;font-weight:500}
+.error-msg{font-size:12px;color:#e53e3e;text-align:center;padding:8px;background:#fff5f5;border-radius:8px;display:none}
+.main-app{display:none;flex-direction:column;flex:1}
+.topbar{padding:14px 16px 12px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:10px;background:#fff;position:sticky;top:0;z-index:10}
+.topbar h2{font-size:17px;font-weight:600;color:#1a1a1a;flex:1}
+.topbar-back{font-size:13px;color:#f97316;cursor:pointer;padding:4px 0;white-space:nowrap}
+.topbar-action{font-size:22px;cursor:pointer;color:#1a1a1a;line-height:1;padding:2px 4px}
+.nav{display:flex;border-top:1px solid #f0f0f0;background:#fff;position:sticky;bottom:0;z-index:10}
+.nav-item{flex:1;padding:8px 0 10px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-icon{font-size:20px;line-height:1}
+.nav-label{font-size:9px;color:#aaa;font-weight:500}
+.nav-item.active .nav-label{color:#f97316}
+.content{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+.card{background:#fff;border:1px solid #efefef;border-radius:14px;padding:14px}
+.card-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px}
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:#fafafa;border-radius:10px;padding:10px 12px}
+.metric-label{font-size:11px;color:#aaa;margin-bottom:2px}
+.metric-val{font-size:20px;font-weight:600;color:#1a1a1a}
+.field-group{display:flex;flex-direction:column;gap:12px}
+.fl{display:flex;flex-direction:column;gap:5px}
+.fl label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.04em}
+.fl input,.fl select,.fl textarea{padding:9px 11px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;color:#1a1a1a;background:#fff;outline:none;font-family:inherit}
+.fl input:focus,.fl select:focus,.fl textarea:focus{border-color:#f97316}
+.fl textarea{resize:none;line-height:1.5}
+.btn-full{width:100%;padding:13px;background:#f97316;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-sec{width:100%;padding:11px;background:#fafafa;color:#1a1a1a;border:1px solid #e5e5e5;border-radius:12px;font-size:14px;cursor:pointer;margin-top:4px}
+.add-btn{font-size:13px;color:#f97316;cursor:pointer;padding:6px 0;display:inline-block;font-weight:500}
+.list-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f5f5f5;cursor:pointer}
+.list-item:last-child{border-bottom:none}
+.li-avatar{width:38px;height:38px;border-radius:50%;background:#fff3e8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#f97316;flex-shrink:0}
+.li-body{flex:1}
+.li-name{font-size:14px;font-weight:500;color:#1a1a1a}
+.li-sub{font-size:12px;color:#aaa;margin-top:1px}
+.li-right{font-size:12px;color:#aaa}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-top:3px}
+.badge-ok{background:#e8f5e9;color:#2e7d32}
+.badge-warn{background:#fff8e1;color:#f57f17}
+.badge-info{background:#e3f2fd;color:#1565c0}
+.line-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.line-item:last-child{border-bottom:none}
+.line-desc{flex:1;font-size:13px;color:#1a1a1a}
+.line-val{font-size:13px;font-weight:500;color:#1a1a1a;min-width:72px;text-align:right}
+.line-del{font-size:16px;color:#ccc;cursor:pointer;padding:0 4px}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid #f0f0f0;margin-top:4px}
+.total-label{font-size:13px;color:#888}
+.total-val{font-size:20px;font-weight:600;color:#1a1a1a}
+.notif{background:#fff8f3;border:1px solid #fde8d4;border-radius:12px;padding:12px;display:flex;gap:10px}
+.notif-body{flex:1;font-size:13px;color:#c05621;line-height:1.5}
+.empty{text-align:center;padding:40px 20px;color:#bbb;font-size:14px}
+.loading{text-align:center;padding:20px;color:#aaa;font-size:13px}
+.sec-div{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;padding:4px 0;border-bottom:1px solid #f0f0f0;margin-bottom:4px}
+.user-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.user-avatar{width:44px;height:44px;border-radius:50%;background:#fff3e8;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#f97316}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<div class="auth-screen" id="auth-screen">
+  <div class="logo">Prestador<span>Pro</span></div>
+  <div class="auth-card" id="login-card">
+    <div class="auth-title">Entrar</div>
+    <div class="auth-sub">Acesse sua conta para continuar</div>
+    <div class="error-msg" id="login-error"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
+    <div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+    <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    <div class="divider">ou</div>
+    <button class="btn-google" onclick="doGoogleLogin()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar com Google
+    </button>
+    <div class="auth-toggle">Não tem conta? <span onclick="toggleAuth()">Cadastre-se</span></div>
+  </div>
+  <div class="auth-card" id="register-card" style="display:none">
+    <div class="auth-title">Criar conta</div>
+    <div class="auth-sub">Comece a usar o PrestadorPro grátis</div>
+    <div class="error-msg" id="reg-error"></div>
+    <div class="field"><label>Nome completo</label><input type="text" id="reg-nome" placeholder="Seu nome"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="seu@email.com"></div>
+    <div class="field"><label>Senha</label><input type="password" id="reg-pass" placeholder="mínimo 6 caracteres"></div>
+    <button class="btn-primary" onclick="doRegister()">Criar conta</button>
+    <div class="divider">ou</div>
+    <button class="btn-google" onclick="doGoogleLogin()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar com Google
+    </button>
+    <div class="auth-toggle">Já tem conta? <span onclick="toggleAuth()">Entrar</span></div>
+  </div>
+</div>
+
+<div class="main-app" id="main-app">
+  <div class="screen active" id="s-home">
+    <div class="topbar"><h2>PrestadorPro</h2><span class="topbar-action" onclick="go('s-config')">⚙️</span></div>
+    <div class="content">
+      <div class="notif" id="notif-agend" style="display:none">
+        <span style="font-size:18px">🔔</span>
+        <div class="notif-body" id="notif-text">Você tem serviços agendados para hoje.</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-label">Clientes</div><div class="metric-val" id="m-clientes">—</div></div>
+        <div class="metric"><div class="metric-label">Documentos</div><div class="metric-val" id="m-docs">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Ações rápidas</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div onclick="go('s-agenda')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📅</div><div style="font-size:13px;color:#444">Agenda</div></div>
+          <div onclick="iniciarOS()" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">🔧</div><div style="font-size:13px;color:#444">Nova OS</div></div>
+          <div onclick="iniciarOrc()" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📄</div><div style="font-size:13px;color:#444">Orçamento</div></div>
+          <div onclick="go('s-laudo')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📋</div><div style="font-size:13px;color:#444">Laudo</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">Documentos recentes</div><div id="docs-recentes"><div class="loading">Carregando...</div></div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="goNav('s-home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+      <div class="nav-item" onclick="goNav('s-agenda',this)"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></div>
+      <div class="nav-item" onclick="goNav('s-clientes',this)"><span class="nav-icon">👥</span><span class="nav-label">Clientes</span></div>
+      <div class="nav-item" onclick="goNav('s-docs',this)"><span class="nav-icon">📁</span><span class="nav-label">Docs</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-agenda">
+    <div class="topbar"><h2>Agenda</h2><span class="topbar-action" onclick="go('s-novo-agend')">＋</span></div>
+    <div class="content">
+      <div id="agenda-list"><div class="loading">Carregando...</div></div>
+      <button class="btn-full" onclick="go('s-novo-agend')">+ novo agendamento</button>
+    </div>
+    <div class="nav">
+      <div class="nav-item" onclick="goNav('s-home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+      <div class="nav-item active"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></div>
+      <div class="nav-item" onclick="goNav('s-clientes',this)"><span class="nav-icon">👥</span><span class="nav-label">Clientes</span></div>
+      <div class="nav-item" onclick="goNav('s-docs',this)"><span class="nav-icon">📁</span><span class="nav-label">Docs</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-novo-agend">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-agenda')">← Agenda</span><h2>Novo agendamento</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="field-group">
+          <div class="fl"><label>Cliente</label><select id="ag-cliente"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Data</label><input type="date" id="ag-data"></div>
+          <div class="fl"><label>Horário</label><input type="time" id="ag-hora"></div>
+          <div class="fl"><label>Endereço do serviço</label><input type="text" id="ag-end" placeholder="Rua, número, complemento"></div>
+          <div class="fl"><label>Problema / descrição</label><textarea rows="3" id="ag-desc" placeholder="Descreva o problema..."></textarea></div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="salvarAgend()">salvar agendamento</button>
+      <button class="btn-sec" onclick="go('s-agenda')">cancelar</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-clientes">
+    <div class="topbar"><h2>Clientes</h2><span class="topbar-action" onclick="go('s-novo-cliente')">＋</span></div>
+    <div class="content">
+      <div class="fl"><input type="text" id="busca-cliente" placeholder="Buscar cliente..." oninput="filtrarClientes(this.value)"></div>
+      <div class="card" style="padding:0 14px"><div id="clientes-list"><div class="loading">Carregando...</div></div></div>
+      <button class="btn-full" onclick="go('s-novo-cliente')">+ novo cliente</button>
+    </div>
+    <div class="nav">
+      <div class="nav-item" onclick="goNav('s-home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+      <div class="nav-item" onclick="goNav('s-agenda',this)"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></div>
+      <div class="nav-item active"><span class="nav-icon">👥</span><span class="nav-label">Clientes</span></div>
+      <div class="nav-item" onclick="goNav('s-docs',this)"><span class="nav-icon">📁</span><span class="nav-label">Docs</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-novo-cliente">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-clientes')">← Clientes</span><h2>Novo cliente</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="field-group">
+          <div class="fl"><label>Nome completo</label><input type="text" id="nc-nome" placeholder="Ex.: João da Silva"></div>
+          <div class="fl"><label>WhatsApp</label><input type="text" id="nc-wpp" placeholder="(11) 99999-0000"></div>
+          <div class="fl"><label>Endereço</label><input type="text" id="nc-end" placeholder="Rua, número"></div>
+          <div class="fl"><label>Cidade</label><input type="text" id="nc-cidade" placeholder="São Paulo – SP"></div>
+          <div class="fl"><label>Observações</label><textarea rows="2" id="nc-obs" placeholder="Referências, preferências..."></textarea></div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="salvarCliente()">salvar cliente</button>
+      <button class="btn-sec" onclick="go('s-clientes')">cancelar</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ficha-cliente">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-clientes')">← Clientes</span><h2>Ficha do cliente</h2></div>
+    <div class="content">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div class="li-avatar" style="width:52px;height:52px;font-size:18px" id="fc-avatar">--</div>
+          <div><div style="font-size:17px;font-weight:600" id="fc-nome">—</div><div style="font-size:13px;color:#aaa" id="fc-wpp">—</div></div>
+        </div>
+        <div style="font-size:12px;color:#aaa;margin-bottom:2px">Endereço</div>
+        <div style="font-size:13px;margin-bottom:10px" id="fc-end">—</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="text-align:center;background:#fafafa;border-radius:8px;padding:8px"><div style="font-size:18px;font-weight:600" id="fc-total-servs">0</div><div style="font-size:10px;color:#aaa">serviços</div></div>
+          <div style="text-align:center;background:#fafafa;border-radius:8px;padding:8px"><div style="font-size:14px;font-weight:600" id="fc-total-val">R$0</div><div style="font-size:10px;color:#aaa">total</div></div>
+          <div style="text-align:center;background:#fafafa;border-radius:8px;padding:8px"><div style="font-size:18px;font-weight:600" id="fc-total-orc">0</div><div style="font-size:10px;color:#aaa">orçamentos</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:0 14px">
+        <div class="card-title" style="padding-top:14px">Histórico</div>
+        <div id="fc-historico"><div class="loading">Carregando...</div></div>
+      </div>
+      <div class="card" id="fc-obs-card" style="display:none">
+        <div class="card-title">Observações</div>
+        <div style="font-size:13px;color:#666;line-height:1.6" id="fc-obs">—</div>
+      </div>
+      <button class="btn-full" onclick="novoDocClienteAtual()">+ novo documento</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-docs">
+    <div class="topbar"><h2>Documentos</h2></div>
+    <div class="content">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div onclick="iniciarOS()" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">🔧</div><div style="font-size:13px;color:#444">Nova OS</div></div>
+        <div onclick="iniciarOrc()" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📄</div><div style="font-size:13px;color:#444">Orçamento</div></div>
+        <div onclick="go('s-laudo')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📋</div><div style="font-size:13px;color:#444">Laudo</div></div>
+      </div>
+      <div class="card" style="padding:0 14px">
+        <div class="card-title" style="padding-top:14px">Todos os documentos</div>
+        <div id="all-docs-list"><div class="loading">Carregando...</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-item" onclick="goNav('s-home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+      <div class="nav-item" onclick="goNav('s-agenda',this)"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></div>
+      <div class="nav-item" onclick="goNav('s-clientes',this)"><span class="nav-icon">👥</span><span class="nav-label">Clientes</span></div>
+      <div class="nav-item active"><span class="nav-icon">📁</span><span class="nav-label">Docs</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-novo-doc">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-docs')">← Docs</span><h2 id="novo-doc-title">Novo documento</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="field-group">
+          <div class="fl"><label>Tipo</label>
+            <select id="doc-tipo" onchange="updateDocTipo()">
+              <option value="OS">Ordem de Serviço</option>
+              <option value="ORC">Orçamento</option>
+              <option value="LAUDO">Laudo Técnico</option>
+            </select>
+          </div>
+          <div class="fl"><label>Cliente</label><select id="doc-cliente"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Data</label><input type="date" id="doc-data"></div>
+          <div class="fl" id="doc-validade-field" style="display:none"><label>Validade</label><input type="date" id="doc-validade"></div>
+          <div class="fl"><label id="doc-desc-label">Serviço realizado</label><textarea rows="2" id="doc-desc" placeholder="Descreva..."></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-div">Peças</div>
+        <div id="doc-pecas"></div>
+        <span class="add-btn" onclick="addItem('pecas')">+ peça</span>
+        <div class="sec-div" style="margin-top:10px">Serviços / mão de obra</div>
+        <div id="doc-servs"></div>
+        <span class="add-btn" onclick="addItem('servs')">+ serviço</span>
+        <div class="sec-div" style="margin-top:10px">Despesas</div>
+        <div id="doc-desps"></div>
+        <span class="add-btn" onclick="addItem('desps')">+ despesa</span>
+        <div class="total-row"><span class="total-label">Total</span><span class="total-val" id="doc-total">R$ 0,00</span></div>
+      </div>
+      <button class="btn-full" onclick="salvarDoc()">salvar documento</button>
+      <button class="btn-sec" onclick="go('s-docs')">cancelar</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-laudo">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-docs')">← Docs</span><h2>Laudo técnico</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="field-group">
+          <div class="fl"><label>Cliente</label><select id="lau-cliente"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Equipamento / local</label><input type="text" id="lau-equip" placeholder="Ex.: Quadro elétrico, sala"></div>
+          <div class="fl"><label>Problema identificado</label><textarea rows="3" id="lau-problema" placeholder="Diagnóstico técnico..."></textarea></div>
+          <div class="fl"><label>Recomendação / solução</label><textarea rows="3" id="lau-solucao" placeholder="O que foi ou deve ser feito..."></textarea></div>
+          <div class="fl"><label>Observações</label><textarea rows="2" id="lau-obs" placeholder="Observações adicionais..."></textarea></div>
+        </div>
+      </div>
+      <button class="btn-full" onclick="salvarLaudo()">salvar laudo</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-config">
+    <div class="topbar"><span class="topbar-back" onclick="go('s-home')">← Início</span><h2>Configurações</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Conta</div>
+        <div class="user-row">
+          <div class="user-avatar" id="cfg-avatar">--</div>
+          <div><div style="font-size:15px;font-weight:500" id="cfg-nome">—</div><div style="font-size:12px;color:#aaa" id="cfg-email">—</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Empresa</div>
+        <div class="field-group">
+          <div class="fl"><label>Nome da empresa</label><input type="text" id="cfg-empresa" placeholder="Ex.: Elétrica do João"></div>
+          <div class="fl"><label>Telefone / WhatsApp</label><input type="text" id="cfg-tel" placeholder="(11) 99999-0000"></div>
+        </div>
+        <button class="btn-full" style="margin-top:12px" onclick="alert('Salvo!')">salvar</button>
+      </div>
+      <button class="btn-sec" style="margin-top:4px;color:#e53e3e;border-color:#fecaca" onclick="doLogout()">Sair da conta</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const SUPA_URL = 'https://lqebrbpwarmpubukppcs.supabase.co';
+const SUPA_KEY = 'sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let clientesCache = [];
+let docItems = {pecas:[],servs:[],desps:[]};
+let clienteAtualId = null;
+
+sb.auth.onAuthStateChange((event, session) => {
+  if (session) { currentUser = session.user; showApp(); }
+  else { currentUser = null; document.getElementById('auth-screen').style.display='flex'; document.getElementById('main-app').style.display='none'; }
+});
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  err.style.display='none';
+  const {error} = await sb.auth.signInWithPassword({email, password: pass});
+  if (error) { err.textContent='E-mail ou senha incorretos.'; err.style.display='block'; }
+}
+
+async function doRegister() {
+  const nome = document.getElementById('reg-nome').value;
+  const email = document.getElementById('reg-email').value;
+  const pass = document.getElementById('reg-pass').value;
+  const err = document.getElementById('reg-error');
+  err.style.display='none';
+  const {error} = await sb.auth.signUp({email, password: pass, options:{data:{full_name: nome}}});
+  if (error) { err.textContent=error.message; err.style.display='block'; }
+  else { err.style.display='block'; err.style.background='#f0fff4'; err.style.color='#276749'; err.textContent='Conta criada! Verifique seu e-mail para confirmar.'; }
+}
+
+async function doGoogleLogin() {
+  await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}});
+}
+
+async function doLogout() { await sb.auth.signOut(); }
+
+function toggleAuth() {
+  const l=document.getElementById('login-card'), r=document.getElementById('register-card');
+  l.style.display=l.style.display==='none'?'flex':'none';
+  r.style.display=r.style.display==='none'?'flex':'none';
+}
+
+async function showApp() {
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  const meta = currentUser.user_metadata||{};
+  const nome = meta.full_name||meta.name||currentUser.email.split('@')[0];
+  const ini = nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('cfg-avatar').textContent=ini;
+  document.getElementById('cfg-nome').textContent=nome;
+  document.getElementById('cfg-email').textContent=currentUser.email;
+  const today=new Date().toISOString().split('T')[0];
+  ['ag-data','doc-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+  await carregarClientes();
+  await carregarDocs();
+  await carregarAgenda();
+}
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el){el.classList.add('active');el.scrollTop=0;}
+}
+
+function goNav(id,el) {
+  go(id);
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+}
+
+async function carregarClientes() {
+  const {data}=await sb.from('clientes').select('*').eq('user_id',currentUser.id).order('nome');
+  clientesCache=data||[];
+  renderClientes(clientesCache);
+  popularSelects();
+  document.getElementById('m-clientes').textContent=clientesCache.length;
+}
+
+function renderClientes(lista) {
+  const el=document.getElementById('clientes-list');
+  if(!lista.length){el.innerHTML='<div class="empty">Nenhum cliente cadastrado ainda.</div>';return;}
+  el.innerHTML=lista.map(c=>`<div class="list-item" onclick="verCliente('${c.id}')"><div class="li-avatar">${iniciais(c.nome)}</div><div class="li-body"><div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div></div><div class="li-right">›</div></div>`).join('');
+}
+
+function filtrarClientes(q) {
+  renderClientes(clientesCache.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase())));
+}
+
+function popularSelects() {
+  const opts=clientesCache.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+  ['ag-cliente','doc-cliente','lau-cliente'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+opts;});
+}
+
+async function salvarCliente() {
+  const nome=document.getElementById('nc-nome').value.trim();
+  if(!nome){alert('Nome obrigatório.');return;}
+  const {error}=await sb.from('clientes').insert({user_id:currentUser.id,nome,whatsapp:document.getElementById('nc-wpp').value,endereco:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cidade').value,observacoes:document.getElementById('nc-obs').value});
+  if(!error){['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');await carregarClientes();go('s-clientes');}
+}
+
+async function verCliente(id) {
+  clienteAtualId=id;
+  const c=clientesCache.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('fc-avatar').textContent=iniciais(c.nome);
+  document.getElementById('fc-nome').textContent=c.nome;
+  document.getElementById('fc-wpp').textContent=c.whatsapp||'—';
+  document.getElementById('fc-end').textContent=[c.endereco,c.cidade].filter(Boolean).join(', ')||'—';
+  if(c.observacoes){document.getElementById('fc-obs').textContent=c.observacoes;document.getElementById('fc-obs-card').style.display='block';}
+  else document.getElementById('fc-obs-card').style.display='none';
+  go('s-ficha-cliente');
+  const {data}=await sb.from('documentos').select('*').eq('cliente_id',id).order('created_at',{ascending:false});
+  const docs=data||[];
+  document.getElementById('fc-total-servs').textContent=docs.filter(d=>d.tipo==='OS').length;
+  document.getElementById('fc-total-orc').textContent=docs.filter(d=>d.tipo==='ORC').length;
+  const total=docs.filter(d=>d.tipo==='OS').reduce((s,d)=>s+(d.total||0),0);
+  document.getElementById('fc-total-val').textContent='R$'+total.toLocaleString('pt-BR');
+  const hist=document.getElementById('fc-historico');
+  if(!docs.length){hist.innerHTML='<div class="empty" style="padding:16px 0">Nenhum documento ainda.</div>';return;}
+  hist.innerHTML=docs.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.descricao||'—'}</div><div class="li-sub">${fmtData(d.data)} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div></div>`).join('');
+}
+
+function novoDocClienteAtual() {
+  iniciarOrc();
+  setTimeout(()=>{if(clienteAtualId)document.getElementById('doc-cliente').value=clienteAtualId;},100);
+}
+
+async function carregarDocs() {
+  const {data}=await sb.from('documentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
+  const docs=data||[];
+  document.getElementById('m-docs').textContent=docs.length;
+  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div class="li-right">${fmtData(d.data)}</div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
+  document.getElementById('docs-recentes').innerHTML=render(docs.slice(0,5));
+  document.getElementById('all-docs-list').innerHTML=render(docs);
+}
+
+function iniciarOS(){docItems={pecas:[],servs:[],desps:[]};renderItens();document.getElementById('doc-tipo').value='OS';updateDocTipo();go('s-novo-doc');}
+function iniciarOrc(){docItems={pecas:[],servs:[],desps:[]};renderItens();document.getElementById('doc-tipo').value='ORC';updateDocTipo();go('s-novo-doc');}
+
+function updateDocTipo() {
+  const t=document.getElementById('doc-tipo').value;
+  document.getElementById('novo-doc-title').textContent=t==='OS'?'Ordem de Serviço':t==='ORC'?'Orçamento':'Laudo Técnico';
+  document.getElementById('doc-desc-label').textContent=t==='OS'?'Serviço realizado':t==='ORC'?'Descrição do serviço':'Problema / diagnóstico';
+  document.getElementById('doc-validade-field').style.display=t==='ORC'?'flex':'none';
+}
+
+function addItem(tipo) {
+  const desc=prompt('Descrição:');if(!desc)return;
+  const val=parseFloat(prompt('Valor (ex: 50.00):')||'0');
+  docItems[tipo].push({desc,val});renderItens();
+}
+
+function renderItens() {
+  ['pecas','servs','desps'].forEach(tipo=>{
+    document.getElementById('doc-'+tipo).innerHTML=docItems[tipo].map((it,i)=>`<div class="line-item"><span class="line-desc">${it.desc}</span><span class="line-val">R$ ${it.val.toFixed(2)}</span><span class="line-del" onclick="removeItem('${tipo}',${i})">×</span></div>`).join('');
+  });
+  calcTotal();
+}
+
+function removeItem(tipo,i){docItems[tipo].splice(i,1);renderItens();}
+
+function calcTotal() {
+  const all=[...docItems.pecas,...docItems.servs,...docItems.desps];
+  const t=all.reduce((s,it)=>s+it.val,0);
+  document.getElementById('doc-total').textContent='R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2});
+  return t;
+}
+
+async function salvarDoc() {
+  const tipo=document.getElementById('doc-tipo').value;
+  const clienteId=document.getElementById('doc-cliente').value;
+  const data=document.getElementById('doc-data').value;
+  const desc=document.getElementById('doc-desc').value;
+  if(!clienteId){alert('Selecione um cliente.');return;}
+  const total=calcTotal();
+  const {error}=await sb.from('documentos').insert({user_id:currentUser.id,cliente_id:clienteId,tipo,data,descricao:desc,total,itens:{pecas:docItems.pecas,servs:docItems.servs,desps:docItems.desps}});
+  if(!error){docItems={pecas:[],servs:[],desps:[]};await carregarDocs();alert('Documento salvo!');go('s-docs');}
+  else alert('Erro ao salvar: '+error.message);
+}
+
+async function salvarLaudo() {
+  const clienteId=document.getElementById('lau-cliente').value;
+  if(!clienteId){alert('Selecione um cliente.');return;}
+  const desc=[document.getElementById('lau-equip').value,document.getElementById('lau-problema').value,document.getElementById('lau-solucao').value].filter(Boolean).join(' | ');
+  const {error}=await sb.from('documentos').insert({user_id:currentUser.id,cliente_id:clienteId,tipo:'LAUDO',data:new Date().toISOString().split('T')[0],descricao:desc,total:0,itens:{}});
+  if(!error){await carregarDocs();alert('Laudo salvo!');go('s-docs');}
+}
+
+async function carregarAgenda() {
+  const {data}=await sb.from('agendamentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('data').order('hora');
+  const ags=data||[];
+  const today=new Date().toISOString().split('T')[0];
+  const todayAgs=ags.filter(a=>a.data===today);
+  if(todayAgs.length){document.getElementById('notif-agend').style.display='flex';document.getElementById('notif-text').textContent=`Você tem ${todayAgs.length} serviço(s) agendado(s) para hoje.`;}
+  const el=document.getElementById('agenda-list');
+  if(!ags.length){el.innerHTML='<div class="empty">Nenhum agendamento ainda.</div>';return;}
+  const grupos={};
+  ags.forEach(a=>{if(!grupos[a.data])grupos[a.data]=[];grupos[a.data].push(a);});
+  el.innerHTML=Object.entries(grupos).map(([data,items])=>`<div class="card"><div class="card-title">${fmtDataLonga(data)}</div>${items.map(a=>`<div class="list-item"><div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div><div class="li-body"><div class="li-name">${a.clientes?.nome||'—'}</div><div class="li-sub">${a.descricao||''}</div><div class="li-sub">${a.endereco||''}</div></div></div>`).join('')}</div>`).join('');
+}
+
+async function salvarAgend() {
+  const clienteId=document.getElementById('ag-cliente').value;
+  if(!clienteId){alert('Selecione um cliente.');return;}
+  const {error}=await sb.from('agendamentos').insert({user_id:currentUser.id,cliente_id:clienteId,data:document.getElementById('ag-data').value,hora:document.getElementById('ag-hora').value,endereco:document.getElementById('ag-end').value,descricao:document.getElementById('ag-desc').value});
+  if(!error){['ag-cliente','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await carregarAgenda();go('s-agenda');}
+}
+
+function iniciais(nome){return(nome||'').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'--';}
+function fmtData(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}`;}
+function fmtDataLonga(d){if(!d)return'—';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});}
+</script>
+</body>
+</html>
