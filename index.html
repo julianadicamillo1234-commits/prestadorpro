@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>PrestadorPro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -475,7 +476,7 @@ async function carregarDocs() {
   const {data}=await sb.from('documentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
   document.getElementById('m-docs').textContent=docs.length;
-  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div class="li-right">${fmtData(d.data)}</div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
+  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="li-right">${fmtData(d.data)}</div><span style="font-size:11px;color:#f97316;cursor:pointer;font-weight:500" onclick="gerarPDF('${d.id}')">PDF+WPP</span></div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
   document.getElementById('docs-recentes').innerHTML=render(docs.slice(0,5));
   document.getElementById('all-docs-list').innerHTML=render(docs);
 }
@@ -552,6 +553,109 @@ async function salvarAgend() {
   if(!error){['ag-cliente','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await carregarAgenda();go('s-agenda');}
 }
 
+async function gerarPDF(docId) {
+  const {data: doc} = await sb.from('documentos').select('*, clientes(*)').eq('id', docId).single();
+  if (!doc) return;
+  const {jsPDF} = window.jspdf;
+  const pdf = new jsPDF();
+  const c = doc.clientes;
+  const itens = doc.itens || {};
+  
+  // Header
+  pdf.setFontSize(20);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('PrestadorPro', 20, 20);
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(150);
+  pdf.text(doc.tipo === 'OS' ? 'Ordem de Serviço' : doc.tipo === 'ORC' ? 'Orçamento' : 'Laudo Técnico', 20, 28);
+  
+  // Linha
+  pdf.setDrawColor(240);
+  pdf.line(20, 33, 190, 33);
+  pdf.setTextColor(0);
+  
+  // Cliente
+  pdf.setFontSize(11);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Cliente', 20, 42);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.text(c?.nome || '—', 20, 49);
+  pdf.text(c?.whatsapp || '', 20, 55);
+  pdf.text(c?.endereco || '', 20, 61);
+  
+  // Data
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(11);
+  pdf.text('Data', 130, 42);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.text(fmtData(doc.data), 130, 49);
+  
+  // Descrição
+  pdf.line(20, 68, 190, 68);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(11);
+  pdf.text('Descrição', 20, 76);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  const descLines = pdf.splitTextToSize(doc.descricao || '—', 170);
+  pdf.text(descLines, 20, 83);
+  
+  let y = 83 + (descLines.length * 6) + 8;
+  
+  // Itens
+  if (itens.pecas?.length || itens.servs?.length || itens.desps?.length) {
+    pdf.line(20, y, 190, y); y += 8;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text('Itens', 20, y); y += 8;
+    pdf.setFontSize(10);
+    
+    const renderSecao = (lista, titulo) => {
+      if (!lista?.length) return;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(100);
+      pdf.text(titulo, 20, y); y += 6;
+      pdf.setTextColor(0);
+      pdf.setFont('helvetica', 'normal');
+      lista.forEach(it => {
+        pdf.text(it.desc, 22, y);
+        pdf.text('R$ ' + it.val.toFixed(2), 170, y, {align: 'right'});
+        y += 6;
+      });
+      y += 2;
+    };
+    
+    renderSecao(itens.pecas, 'Peças');
+    renderSecao(itens.servs, 'Serviços');
+    renderSecao(itens.desps, 'Despesas');
+    
+    // Total
+    pdf.line(20, y, 190, y); y += 8;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.text('Total', 20, y);
+    pdf.text('R$ ' + (doc.total||0).toLocaleString('pt-BR', {minimumFractionDigits:2}), 170, y, {align:'right'});
+  }
+  
+  // Rodapé
+  pdf.setFontSize(8);
+  pdf.setTextColor(150);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text('Gerado pelo PrestadorPro · prestadorpro.vercel.app', 105, 285, {align:'center'});
+  
+  const nomeArquivo = `${doc.tipo}-${c?.nome?.replace(/ /g,'_')}-${doc.data}.pdf`;
+  pdf.save(nomeArquivo);
+  
+  // WhatsApp
+  const wpp = c?.whatsapp?.replace(/\D/g,'');
+  if (wpp) {
+    const msg = encodeURIComponent(`Olá ${c.nome}! Segue seu ${doc.tipo === 'OS' ? 'ordem de serviço' : doc.tipo === 'ORC' ? 'orçamento' : 'laudo técnico'}. Qualquer dúvida estou à disposição!`);
+    setTimeout(() => window.open(`https://wa.me/55${wpp}?text=${msg}`, '_blank'), 1500);
+  }
+}
 function iniciais(nome){return(nome||'').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'--';}
 function fmtData(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}`;}
 function fmtDataLonga(d){if(!d)return'—';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});}
