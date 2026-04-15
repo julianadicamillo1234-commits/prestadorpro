@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>PrestadorPro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
-.app{width:100%;max-width:420px;min-height:100vh;background:#fff;display:flex;flex-direction:column;position:relative}
+.app{width:100%;max-width:420px;min-height:100vh;background:#fff;display:flex;flex-direction:column}
 .auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:32px 24px;gap:24px}
 .logo{font-size:28px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px}
 .logo span{color:#f97316}
@@ -325,12 +326,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Empresa</div>
+        <div class="card-title">Dados da empresa</div>
         <div class="field-group">
           <div class="fl"><label>Nome da empresa</label><input type="text" id="cfg-empresa" placeholder="Ex.: Elétrica do João"></div>
+          <div class="fl"><label>CNPJ / CPF</label><input type="text" id="cfg-cnpj" placeholder="00.000.000/0001-00"></div>
+          <div class="fl"><label>Endereço</label><input type="text" id="cfg-endereco" placeholder="Rua, número, bairro"></div>
+          <div class="fl"><label>Cidade / Estado</label><input type="text" id="cfg-cidade" placeholder="São Paulo – SP"></div>
           <div class="fl"><label>Telefone / WhatsApp</label><input type="text" id="cfg-tel" placeholder="(11) 99999-0000"></div>
+          <div class="fl"><label>Condições de pagamento</label><textarea rows="2" id="cfg-pagamento" placeholder="Ex.: Pix, cartão de débito/crédito, boleto"></textarea></div>
         </div>
-        <button class="btn-full" style="margin-top:12px" onclick="alert('Salvo!')">salvar</button>
+        <button class="btn-full" style="margin-top:12px" onclick="salvarEmpresa()">salvar configurações</button>
       </div>
       <button class="btn-sec" style="margin-top:4px;color:#e53e3e;border-color:#fecaca" onclick="doLogout()">Sair da conta</button>
     </div>
@@ -339,59 +344,59 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const SUPA_URL = 'https://lqebrbpwarmpubukppcs.supabase.co';
-const SUPA_KEY = 'sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
-const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_KEY);
+const SUPA_URL='https://lqebrbpwarmpubukppcs.supabase.co';
+const SUPA_KEY='sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
+const {createClient}=supabase;
+const sb=createClient(SUPA_URL,SUPA_KEY);
 
-let currentUser = null;
-let clientesCache = [];
-let docItems = {pecas:[],servs:[],desps:[]};
-let clienteAtualId = null;
+let currentUser=null;
+let clientesCache=[];
+let docItems={pecas:[],servs:[],desps:[]};
+let clienteAtualId=null;
 
-sb.auth.onAuthStateChange((event, session) => {
-  if (session) { currentUser = session.user; showApp(); }
-  else { currentUser = null; document.getElementById('auth-screen').style.display='flex'; document.getElementById('main-app').style.display='none'; }
+sb.auth.onAuthStateChange((event,session)=>{
+  if(session){currentUser=session.user;showApp();}
+  else{currentUser=null;document.getElementById('auth-screen').style.display='flex';document.getElementById('main-app').style.display='none';}
 });
 
-async function doLogin() {
-  const email = document.getElementById('login-email').value;
-  const pass = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-error');
+async function doLogin(){
+  const email=document.getElementById('login-email').value;
+  const pass=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-error');
   err.style.display='none';
-  const {error} = await sb.auth.signInWithPassword({email, password: pass});
-  if (error) { err.textContent='E-mail ou senha incorretos.'; err.style.display='block'; }
+  const {error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){err.textContent='E-mail ou senha incorretos.';err.style.display='block';}
 }
 
-async function doRegister() {
-  const nome = document.getElementById('reg-nome').value;
-  const email = document.getElementById('reg-email').value;
-  const pass = document.getElementById('reg-pass').value;
-  const err = document.getElementById('reg-error');
+async function doRegister(){
+  const nome=document.getElementById('reg-nome').value;
+  const email=document.getElementById('reg-email').value;
+  const pass=document.getElementById('reg-pass').value;
+  const err=document.getElementById('reg-error');
   err.style.display='none';
-  const {error} = await sb.auth.signUp({email, password: pass, options:{data:{full_name: nome}}});
-  if (error) { err.textContent=error.message; err.style.display='block'; }
-  else { err.style.display='block'; err.style.background='#f0fff4'; err.style.color='#276749'; err.textContent='Conta criada! Verifique seu e-mail para confirmar.'; }
+  const {error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:nome}}});
+  if(error){err.textContent=error.message;err.style.display='block';}
+  else{err.style.display='block';err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada! Verifique seu e-mail para confirmar.';}
 }
 
-async function doGoogleLogin() {
-  await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: window.location.href}});
+async function doGoogleLogin(){
+  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
 }
 
-async function doLogout() { await sb.auth.signOut(); }
+async function doLogout(){await sb.auth.signOut();}
 
-function toggleAuth() {
-  const l=document.getElementById('login-card'), r=document.getElementById('register-card');
+function toggleAuth(){
+  const l=document.getElementById('login-card'),r=document.getElementById('register-card');
   l.style.display=l.style.display==='none'?'flex':'none';
   r.style.display=r.style.display==='none'?'flex':'none';
 }
 
-async function showApp() {
+async function showApp(){
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('main-app').style.display='flex';
-  const meta = currentUser.user_metadata||{};
-  const nome = meta.full_name||meta.name||currentUser.email.split('@')[0];
-  const ini = nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+  const meta=currentUser.user_metadata||{};
+  const nome=meta.full_name||meta.name||currentUser.email.split('@')[0];
+  const ini=nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
   document.getElementById('cfg-avatar').textContent=ini;
   document.getElementById('cfg-nome').textContent=nome;
   document.getElementById('cfg-email').textContent=currentUser.email;
@@ -400,21 +405,22 @@ async function showApp() {
   await carregarClientes();
   await carregarDocs();
   await carregarAgenda();
+  await carregarEmpresa();
 }
 
-function go(id) {
+function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(el){el.classList.add('active');el.scrollTop=0;}
 }
 
-function goNav(id,el) {
+function goNav(id,el){
   go(id);
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
 }
 
-async function carregarClientes() {
+async function carregarClientes(){
   const {data}=await sb.from('clientes').select('*').eq('user_id',currentUser.id).order('nome');
   clientesCache=data||[];
   renderClientes(clientesCache);
@@ -422,29 +428,29 @@ async function carregarClientes() {
   document.getElementById('m-clientes').textContent=clientesCache.length;
 }
 
-function renderClientes(lista) {
+function renderClientes(lista){
   const el=document.getElementById('clientes-list');
   if(!lista.length){el.innerHTML='<div class="empty">Nenhum cliente cadastrado ainda.</div>';return;}
   el.innerHTML=lista.map(c=>`<div class="list-item" onclick="verCliente('${c.id}')"><div class="li-avatar">${iniciais(c.nome)}</div><div class="li-body"><div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div></div><div class="li-right">›</div></div>`).join('');
 }
 
-function filtrarClientes(q) {
+function filtrarClientes(q){
   renderClientes(clientesCache.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase())));
 }
 
-function popularSelects() {
+function popularSelects(){
   const opts=clientesCache.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
   ['ag-cliente','doc-cliente','lau-cliente'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+opts;});
 }
 
-async function salvarCliente() {
+async function salvarCliente(){
   const nome=document.getElementById('nc-nome').value.trim();
   if(!nome){alert('Nome obrigatório.');return;}
   const {error}=await sb.from('clientes').insert({user_id:currentUser.id,nome,whatsapp:document.getElementById('nc-wpp').value,endereco:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cidade').value,observacoes:document.getElementById('nc-obs').value});
   if(!error){['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');await carregarClientes();go('s-clientes');}
 }
 
-async function verCliente(id) {
+async function verCliente(id){
   clienteAtualId=id;
   const c=clientesCache.find(x=>x.id===id);
   if(!c)return;
@@ -466,16 +472,16 @@ async function verCliente(id) {
   hist.innerHTML=docs.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.descricao||'—'}</div><div class="li-sub">${fmtData(d.data)} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div></div>`).join('');
 }
 
-function novoDocClienteAtual() {
+function novoDocClienteAtual(){
   iniciarOrc();
   setTimeout(()=>{if(clienteAtualId)document.getElementById('doc-cliente').value=clienteAtualId;},100);
 }
 
-async function carregarDocs() {
+async function carregarDocs(){
   const {data}=await sb.from('documentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
   document.getElementById('m-docs').textContent=docs.length;
-  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div class="li-right">${fmtData(d.data)}</div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
+  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="li-right">${fmtData(d.data)}</div><span style="font-size:11px;color:#f97316;cursor:pointer;font-weight:500" onclick="event.stopPropagation();gerarPDF('${d.id}')">PDF+WPP</span></div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
   document.getElementById('docs-recentes').innerHTML=render(docs.slice(0,5));
   document.getElementById('all-docs-list').innerHTML=render(docs);
 }
@@ -483,20 +489,20 @@ async function carregarDocs() {
 function iniciarOS(){docItems={pecas:[],servs:[],desps:[]};renderItens();document.getElementById('doc-tipo').value='OS';updateDocTipo();go('s-novo-doc');}
 function iniciarOrc(){docItems={pecas:[],servs:[],desps:[]};renderItens();document.getElementById('doc-tipo').value='ORC';updateDocTipo();go('s-novo-doc');}
 
-function updateDocTipo() {
+function updateDocTipo(){
   const t=document.getElementById('doc-tipo').value;
   document.getElementById('novo-doc-title').textContent=t==='OS'?'Ordem de Serviço':t==='ORC'?'Orçamento':'Laudo Técnico';
   document.getElementById('doc-desc-label').textContent=t==='OS'?'Serviço realizado':t==='ORC'?'Descrição do serviço':'Problema / diagnóstico';
   document.getElementById('doc-validade-field').style.display=t==='ORC'?'flex':'none';
 }
 
-function addItem(tipo) {
+function addItem(tipo){
   const desc=prompt('Descrição:');if(!desc)return;
   const val=parseFloat(prompt('Valor (ex: 50.00):')||'0');
   docItems[tipo].push({desc,val});renderItens();
 }
 
-function renderItens() {
+function renderItens(){
   ['pecas','servs','desps'].forEach(tipo=>{
     document.getElementById('doc-'+tipo).innerHTML=docItems[tipo].map((it,i)=>`<div class="line-item"><span class="line-desc">${it.desc}</span><span class="line-val">R$ ${it.val.toFixed(2)}</span><span class="line-del" onclick="removeItem('${tipo}',${i})">×</span></div>`).join('');
   });
@@ -505,14 +511,14 @@ function renderItens() {
 
 function removeItem(tipo,i){docItems[tipo].splice(i,1);renderItens();}
 
-function calcTotal() {
+function calcTotal(){
   const all=[...docItems.pecas,...docItems.servs,...docItems.desps];
   const t=all.reduce((s,it)=>s+it.val,0);
   document.getElementById('doc-total').textContent='R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2});
   return t;
 }
 
-async function salvarDoc() {
+async function salvarDoc(){
   const tipo=document.getElementById('doc-tipo').value;
   const clienteId=document.getElementById('doc-cliente').value;
   const data=document.getElementById('doc-data').value;
@@ -524,7 +530,7 @@ async function salvarDoc() {
   else alert('Erro ao salvar: '+error.message);
 }
 
-async function salvarLaudo() {
+async function salvarLaudo(){
   const clienteId=document.getElementById('lau-cliente').value;
   if(!clienteId){alert('Selecione um cliente.');return;}
   const desc=[document.getElementById('lau-equip').value,document.getElementById('lau-problema').value,document.getElementById('lau-solucao').value].filter(Boolean).join(' | ');
@@ -532,7 +538,7 @@ async function salvarLaudo() {
   if(!error){await carregarDocs();alert('Laudo salvo!');go('s-docs');}
 }
 
-async function carregarAgenda() {
+async function carregarAgenda(){
   const {data}=await sb.from('agendamentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('data').order('hora');
   const ags=data||[];
   const today=new Date().toISOString().split('T')[0];
@@ -545,11 +551,129 @@ async function carregarAgenda() {
   el.innerHTML=Object.entries(grupos).map(([data,items])=>`<div class="card"><div class="card-title">${fmtDataLonga(data)}</div>${items.map(a=>`<div class="list-item"><div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div><div class="li-body"><div class="li-name">${a.clientes?.nome||'—'}</div><div class="li-sub">${a.descricao||''}</div><div class="li-sub">${a.endereco||''}</div></div></div>`).join('')}</div>`).join('');
 }
 
-async function salvarAgend() {
+async function salvarAgend(){
   const clienteId=document.getElementById('ag-cliente').value;
   if(!clienteId){alert('Selecione um cliente.');return;}
   const {error}=await sb.from('agendamentos').insert({user_id:currentUser.id,cliente_id:clienteId,data:document.getElementById('ag-data').value,hora:document.getElementById('ag-hora').value,endereco:document.getElementById('ag-end').value,descricao:document.getElementById('ag-desc').value});
   if(!error){['ag-cliente','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await carregarAgenda();go('s-agenda');}
+}
+
+async function carregarEmpresa(){
+  try{
+    const {data}=await sb.from('empresa').select('*').eq('user_id',currentUser.id).single();
+    if(!data)return;
+    document.getElementById('cfg-empresa').value=data.nome||'';
+    document.getElementById('cfg-cnpj').value=data.cnpj||'';
+    document.getElementById('cfg-endereco').value=data.endereco||'';
+    document.getElementById('cfg-cidade').value=data.cidade||'';
+    document.getElementById('cfg-tel').value=data.telefone||'';
+    document.getElementById('cfg-pagamento').value=data.pagamento||'';
+  }catch(e){}
+}
+
+async function salvarEmpresa(){
+  const dados={user_id:currentUser.id,nome:document.getElementById('cfg-empresa').value,cnpj:document.getElementById('cfg-cnpj').value,endereco:document.getElementById('cfg-endereco').value,cidade:document.getElementById('cfg-cidade').value,telefone:document.getElementById('cfg-tel').value,pagamento:document.getElementById('cfg-pagamento').value};
+  const {error}=await sb.from('empresa').upsert(dados,{onConflict:'user_id'});
+  if(!error)alert('Configurações salvas!');
+  else alert('Erro: '+error.message);
+}
+
+async function gerarPDF(docId){
+  const {data:doc}=await sb.from('documentos').select('*, clientes(*)').eq('id',docId).single();
+  if(!doc){alert('Documento não encontrado.');return;}
+  const {data:emp}=await sb.from('empresa').select('*').eq('user_id',currentUser.id).single().catch(()=>({data:null}));
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  const c=doc.clientes;
+  const itens=doc.itens||{};
+  const e=emp||{};
+
+  pdf.setFontSize(13);pdf.setFont('helvetica','bold');
+  pdf.text(e.nome||'Empresa',20,18);
+  pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+  if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,24);
+  if(e.endereco)pdf.text(e.endereco,20,29);
+  if(e.cidade)pdf.text(e.cidade,20,34);
+  if(e.telefone)pdf.text('Tel: '+e.telefone,150,24);
+
+  pdf.setDrawColor(200);pdf.line(20,38,190,38);
+  pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
+  const tipoLabel=doc.tipo==='OS'?'ORDEM DE SERVIÇO':doc.tipo==='ORC'?'ORÇAMENTO':'LAUDO TÉCNICO';
+  pdf.text(tipoLabel,105,45,{align:'center'});
+
+  pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');
+  pdf.text('Dados do Cliente',20,54);
+  pdf.setFont('helvetica','normal');
+  pdf.text(c?.nome||'—',20,60);
+  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,65);
+  if(c?.endereco)pdf.text(c.endereco,20,70);
+  pdf.setFont('helvetica','bold');
+  pdf.text('Data: '+fmtDataCompleta(doc.data),150,60);
+
+  pdf.setDrawColor(200);pdf.line(20,75,190,75);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(9);
+  pdf.text('Descrição',20,82);
+  pdf.setFont('helvetica','normal');
+  const descLines=pdf.splitTextToSize(doc.descricao||'—',170);
+  pdf.text(descLines,20,88);
+
+  let y=88+(descLines.length*5)+6;
+
+  if(itens.pecas?.length||itens.servs?.length||itens.desps?.length){
+    pdf.line(20,y,190,y);y+=7;
+    pdf.setFillColor(50,50,50);pdf.rect(20,y-4,170,7,'F');
+    pdf.setTextColor(255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+    pdf.text('Descrição',22,y);pdf.text('Valor',170,y,{align:'right'});
+    pdf.setTextColor(0);y+=6;
+
+    const renderSecao=(lista,titulo)=>{
+      if(!lista?.length)return;
+      pdf.setFont('helvetica','bold');pdf.setFontSize(8);pdf.setTextColor(100);
+      pdf.text(titulo,20,y);y+=5;
+      pdf.setTextColor(0);pdf.setFont('helvetica','normal');
+      lista.forEach((it,i)=>{
+        if(i%2===0){pdf.setFillColor(248,248,248);pdf.rect(20,y-3.5,170,5.5,'F');}
+        pdf.text(it.desc,22,y);
+        pdf.text('R$ '+it.val.toFixed(2),170,y,{align:'right'});
+        y+=6;
+      });
+    };
+
+    renderSecao(itens.pecas,'Peças');
+    renderSecao(itens.servs,'Serviços');
+    renderSecao(itens.desps,'Despesas');
+
+    pdf.line(20,y,190,y);y+=6;
+    pdf.setFont('helvetica','normal');pdf.setFontSize(9);
+    pdf.text('Subtotal',130,y);
+    pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});
+    y+=6;pdf.setFont('helvetica','bold');pdf.setFontSize(10);
+    pdf.text('Total',130,y);
+    pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});
+    y+=8;
+  }
+
+  if(e.pagamento){
+    pdf.line(20,y,190,y);y+=6;
+    pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+    pdf.text('Condições de Pagamento',20,y);y+=5;
+    pdf.setFont('helvetica','normal');
+    const pagLines=pdf.splitTextToSize(e.pagamento,170);
+    pdf.text(pagLines,20,y);
+  }
+
+  pdf.setFontSize(8);pdf.setTextColor(150);pdf.setFont('helvetica','normal');
+  pdf.text(e.nome||'PrestadorPro',105,280,{align:'center'});
+  if(e.telefone)pdf.text(e.telefone,105,285,{align:'center'});
+
+  const nomeArquivo=`${doc.tipo}-${(c?.nome||'doc').replace(/ /g,'_')}-${doc.data}.pdf`;
+  pdf.save(nomeArquivo);
+
+  const wpp=c?.whatsapp?.replace(/\D/g,'');
+  if(wpp){
+    const msg=encodeURIComponent(`Olá ${c.nome}! Segue seu ${doc.tipo==='OS'?'ordem de serviço':doc.tipo==='ORC'?'orçamento':'laudo técnico'}. Qualquer dúvida estou à disposição!`);
+    setTimeout(()=>window.open(`https://wa.me/55${wpp}?text=${msg}`,'_blank'),1500);
+  }
 }
 
 function iniciais(nome){return(nome||'').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'--';}
