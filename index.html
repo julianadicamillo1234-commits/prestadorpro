@@ -481,7 +481,7 @@ async function carregarDocs(){
   const {data}=await sb.from('documentos').select('*, clientes(nome)').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
   document.getElementById('m-docs').textContent=docs.length;
-  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="li-right">${fmtData(d.data)}</div><span style="font-size:11px;color:#f97316;cursor:pointer;font-weight:500" onclick="event.stopPropagation();gerarPDF('${d.id}')">PDF+WPP</span></div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
+  const render=lista=>lista.length?lista.map(d=>`<div class="list-item"><div class="li-avatar" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.clientes?.nome||'—'}</div><div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div><div style="display:flex;gap:8px;margin-top:4px"><span style="font-size:11px;color:#f97316;cursor:pointer;font-weight:500;padding:2px 8px;border:1px solid #f97316;border-radius:20px" onclick="event.stopPropagation();gerarPDF('${d.id}')">📄 PDF</span><span style="font-size:11px;color:#25d366;cursor:pointer;font-weight:500;padding:2px 8px;border:1px solid #25d366;border-radius:20px" onclick="event.stopPropagation();compartilharWpp('${d.id}')">💬 WPP</span></div></div><div class="li-right">${fmtData(d.data)}</div></div>`).join(''):'<div class="empty">Nenhum documento ainda.</div>';
   document.getElementById('docs-recentes').innerHTML=render(docs.slice(0,5));
   document.getElementById('all-docs-list').innerHTML=render(docs);
 }
@@ -578,15 +578,112 @@ async function salvarEmpresa(){
   else alert('Erro: '+error.message);
 }
 
+async function getEmpresa(){
+  try{const {data}=await sb.from('empresa').select('*').eq('user_id',currentUser.id).maybeSingle();return data||{};}
+  catch(e){return{};}
+}
+
 async function gerarPDF(docId){
   const {data:doc}=await sb.from('documentos').select('*, clientes(*)').eq('id',docId).single();
   if(!doc){alert('Documento não encontrado.');return;}
-  const {data:emp}=await sb.from('empresa').select('*').eq('user_id',currentUser.id).single().catch(()=>({data:null}));
+  const e=await getEmpresa();
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF();
   const c=doc.clientes;
   const itens=doc.itens||{};
-  const e=emp||{};
+
+  pdf.setFontSize(13);pdf.setFont('helvetica','bold');
+  pdf.text(e.nome||'Empresa',20,18);
+  pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+  if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,24);
+  if(e.endereco)pdf.text(e.endereco,20,29);
+  if(e.cidade)pdf.text(e.cidade,20,34);
+  if(e.telefone)pdf.text('Tel: '+e.telefone,150,24);
+
+  pdf.setDrawColor(200);pdf.line(20,38,190,38);
+  pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
+  const tipoLabel=doc.tipo==='OS'?'ORDEM DE SERVIÇO':doc.tipo==='ORC'?'ORÇAMENTO':'LAUDO TÉCNICO';
+  pdf.text(tipoLabel,105,45,{align:'center'});
+
+  pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');
+  pdf.text('Dados do Cliente',20,54);
+  pdf.setFont('helvetica','normal');
+  pdf.text(c?.nome||'—',20,60);
+  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,65);
+  if(c?.endereco)pdf.text(c.endereco,20,70);
+  pdf.setFont('helvetica','bold');
+  pdf.text('Data: '+fmtDataCompleta(doc.data),150,60);
+
+  pdf.setDrawColor(200);pdf.line(20,75,190,75);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(9);
+  pdf.text('Descrição',20,82);
+  pdf.setFont('helvetica','normal');
+  const descLines=pdf.splitTextToSize(doc.descricao||'—',170);
+  pdf.text(descLines,20,88);
+
+  let y=88+(descLines.length*5)+6;
+
+  if(itens.pecas?.length||itens.servs?.length||itens.desps?.length){
+    pdf.line(20,y,190,y);y+=7;
+    pdf.setFillColor(50,50,50);pdf.rect(20,y-4,170,7,'F');
+    pdf.setTextColor(255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+    pdf.text('Descrição',22,y);pdf.text('Valor',170,y,{align:'right'});
+    pdf.setTextColor(0);y+=6;
+
+    const renderSecao=(lista,titulo)=>{
+      if(!lista?.length)return;
+      pdf.setFont('helvetica','bold');pdf.setFontSize(8);pdf.setTextColor(100);
+      pdf.text(titulo,20,y);y+=5;
+      pdf.setTextColor(0);pdf.setFont('helvetica','normal');
+      lista.forEach((it,i)=>{
+        if(i%2===0){pdf.setFillColor(248,248,248);pdf.rect(20,y-3.5,170,5.5,'F');}
+        pdf.text(it.desc,22,y);
+        pdf.text('R$ '+it.val.toFixed(2),170,y,{align:'right'});
+        y+=6;
+      });
+    };
+
+    renderSecao(itens.pecas,'Peças');
+    renderSecao(itens.servs,'Serviços');
+    renderSecao(itens.desps,'Despesas');
+
+    pdf.line(20,y,190,y);y+=6;
+    pdf.setFont('helvetica','normal');pdf.setFontSize(9);
+    pdf.text('Subtotal',130,y);
+    pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});
+    y+=6;pdf.setFont('helvetica','bold');pdf.setFontSize(10);
+    pdf.text('Total',130,y);
+    pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});
+    y+=8;
+  }
+
+  if(e.pagamento){
+    pdf.line(20,y,190,y);y+=6;
+    pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+    pdf.text('Condições de Pagamento',20,y);y+=5;
+    pdf.setFont('helvetica','normal');
+    const pagLines=pdf.splitTextToSize(e.pagamento,170);
+    pdf.text(pagLines,20,y);
+  }
+
+  pdf.setFontSize(8);pdf.setTextColor(150);pdf.setFont('helvetica','normal');
+  pdf.text(e.nome||'PrestadorPro',105,280,{align:'center'});
+  if(e.telefone)pdf.text(e.telefone,105,285,{align:'center'});
+
+  const nomeArquivo=`${doc.tipo}-${(c?.nome||'doc').replace(/ /g,'_')}-${doc.data}.pdf`;
+  pdf.save(nomeArquivo);
+}
+
+async function compartilharWpp(docId){
+  const {data:doc}=await sb.from('documentos').select('*, clientes(*)').eq('id',docId).single();
+  if(!doc){alert('Documento não encontrado.');return;}
+  const c=doc.clientes;
+  const wpp=c?.whatsapp?.replace(/\D/g,'');
+  if(!wpp){alert('Cliente não tem WhatsApp cadastrado.');return;}
+  const tipoLabel=doc.tipo==='OS'?'ordem de serviço':doc.tipo==='ORC'?'orçamento':'laudo técnico';
+  const msg=encodeURIComponent(`Olá ${c.nome}! Segue seu ${tipoLabel} no valor de R$ ${(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}. Qualquer dúvida estou à disposição!`);
+  window.open(`https://wa.me/55${wpp}?text=${msg}`,'_blank');
+}
 
   pdf.setFontSize(13);pdf.setFont('helvetica','bold');
   pdf.text(e.nome||'Empresa',20,18);
