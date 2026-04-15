@@ -331,7 +331,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-sec" style="margin-top:4px;color:#e53e3e;border-color:#fecaca" onclick="doLogout()">Sair da conta</button>
     </div>
   </div>
-
+<!-- MODAL ITEM -->
+<div id="modal-item" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:16px;font-weight:600">Adicionar item</div>
+    <input type="hidden" id="modal-tipo">
+    <div class="fl"><label>Descrição</label><input type="text" id="modal-desc" placeholder="Ex.: Disjuntor 30A"></div>
+    <div class="fl"><label>Valor (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0"></div>
+    <button class="btn-full" onclick="confirmarItem()">adicionar</button>
+    <button class="btn-sec" onclick="fecharModal()">cancelar</button>
+  </div>
+</div>
 </div><!-- /main-app -->
 </div><!-- /app -->
 
@@ -519,9 +529,25 @@ function onTipoChange(){
 }
 
 function addItem(tipo){
-  const desc=prompt('Descrição:');if(!desc)return;
-  const val=parseFloat(prompt('Valor (ex: 50.00):')||'0');
-  docItens[tipo].push({desc,val});renderItens();
+  document.getElementById('modal-tipo').value=tipo;
+  document.getElementById('modal-desc').value='';
+  document.getElementById('modal-val').value='';
+  document.getElementById('modal-item').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-desc').focus(),100);
+}
+
+function confirmarItem(){
+  const tipo=document.getElementById('modal-tipo').value;
+  const desc=document.getElementById('modal-desc').value.trim();
+  const val=parseFloat(document.getElementById('modal-val').value||'0');
+  if(!desc){alert('Descrição obrigatória.');return;}
+  docItens[tipo].push({desc,val});
+  renderItens();
+  fecharModal();
+}
+
+function fecharModal(){
+  document.getElementById('modal-item').style.display='none';
 }
 
 function renderItens(){
