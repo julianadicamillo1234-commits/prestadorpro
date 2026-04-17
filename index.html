@@ -473,7 +473,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-title">Adicionar item</div>
     <input type="hidden" id="modal-tipo">
     <div class="fl"><label>Descrição</label><input type="text" id="modal-desc" placeholder="Ex.: Disjuntor 30A"></div>
-    <div class="fl"><label>Valor (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fl"><label>Qtd</label><input type="number" id="modal-qtd" placeholder="1" min="1" step="1" value="1"></div>
+      <div class="fl"><label>Valor unitário (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0"></div>
+    </div>
+    <div style="font-size:12px;color:#aaa;text-align:right" id="modal-subtotal">Subtotal: R$ 0,00</div>
     <button class="btn-full" onclick="confirmarItem()">adicionar</button>
     <button class="btn-sec" onclick="fecharModal('modal-item')">cancelar</button>
   </div>
@@ -883,31 +887,49 @@ function onTipoChange(){
 function addItem(tipo){
   document.getElementById('modal-tipo').value=tipo;
   document.getElementById('modal-desc').value='';
+  document.getElementById('modal-qtd').value='1';
   document.getElementById('modal-val').value='';
+  document.getElementById('modal-subtotal').textContent='Subtotal: R$ 0,00';
   document.getElementById('modal-item').style.display='flex';
   setTimeout(()=>document.getElementById('modal-desc').focus(),100);
+  document.getElementById('modal-qtd').oninput=calcModalSubtotal;
+  document.getElementById('modal-val').oninput=calcModalSubtotal;
+}
+
+function calcModalSubtotal(){
+  const qtd=parseFloat(document.getElementById('modal-qtd').value)||1;
+  const val=parseFloat(document.getElementById('modal-val').value)||0;
+  document.getElementById('modal-subtotal').textContent='Subtotal: R$ '+(qtd*val).toLocaleString('pt-BR',{minimumFractionDigits:2});
 }
 
 function confirmarItem(){
   const tipo=document.getElementById('modal-tipo').value;
   const desc=document.getElementById('modal-desc').value.trim();
+  const qtd=parseFloat(document.getElementById('modal-qtd').value)||1;
   const val=parseFloat(document.getElementById('modal-val').value||'0');
   if(!desc){alert('Descrição obrigatória.');return;}
-  docItens[tipo].push({desc,val});renderItens();fecharModal('modal-item');
+  docItens[tipo].push({desc,qtd,val,total:qtd*val});
+  renderItens();fecharModal('modal-item');
 }
 
 function renderItens(){
   ['pecas','servs','desps'].forEach(t=>{
     const el=document.getElementById('doc-'+t);if(!el)return;
-    el.innerHTML=(docItens[t]||[]).map((it,i)=>`<div class="line-item"><span class="ld">${it.desc}</span><span class="lv">R$ ${it.val.toFixed(2)}</span><span class="ldel" onclick="delItem('${t}',${i})">×</span></div>`).join('');
+    el.innerHTML=(docItens[t]||[]).map((it,i)=>`
+      <div class="line-item">
+        <span class="ld">
+          ${it.desc}
+          ${it.qtd>1?`<span style="font-size:11px;color:#aaa"> × ${it.qtd}</span>`:''}
+        </span>
+        <span class="lv">R$ ${(it.total||it.val||0).toFixed(2)}</span>
+        <span class="ldel" onclick="delItem('${t}',${i})">×</span>
+      </div>`).join('');
   });calcTotal();
 }
 
-function delItem(t,i){docItens[t].splice(i,1);renderItens();}
-
 function calcTotal(){
   const all=[...(docItens.pecas||[]),...(docItens.servs||[]),...(docItens.desps||[])];
-  const total=all.reduce((s,it)=>s+it.val,0);
+  const total=all.reduce((s,it)=>s+(it.total||it.val||0),0);
   document.getElementById('doc-total').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
   return total;
 }
