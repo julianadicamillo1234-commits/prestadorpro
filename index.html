@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#f97316">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PrestadorPro">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>PrestadorPro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -62,14 +68,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .li-name{font-size:14px;font-weight:500}
 .li-sub{font-size:12px;color:#aaa;margin-top:1px}
 .li-r{font-size:12px;color:#aaa}
-.line-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.li-actions{display:flex;gap:6px;margin-top:4px}
+.li-btn{font-size:11px;padding:2px 8px;border-radius:20px;cursor:pointer;border:1px solid;font-weight:500}
+.li-btn-edit{color:#0ea5e9;border-color:#0ea5e9}
+.li-btn-del{color:#e53e3e;border-color:#fecaca}
+.line-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5;cursor:pointer}
+.line-item:hover{background:#fafafa;border-radius:8px;padding-left:4px}
 .line-item:last-child{border-bottom:none}
 .ld{flex:1;font-size:13px}
 .lv{font-size:13px;font-weight:500;min-width:72px;text-align:right}
 .ldel{font-size:16px;color:#ccc;cursor:pointer;padding:0 4px}
-.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid #f0f0f0;margin-top:4px}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0 0;border-top:1px solid #f0f0f0;margin-top:4px}
 .total-label{font-size:13px;color:#888}
 .total-val{font-size:20px;font-weight:600}
+.desconto-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:#888}
+.desconto-row input{width:64px;padding:4px 8px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;text-align:center;outline:none}
+.desconto-row input:focus{border-color:#f97316}
 .notif{background:#fff8f3;border:1px solid #fde8d4;border-radius:12px;padding:12px;display:flex;gap:10px}
 .notif-body{flex:1;font-size:13px;color:#c05621;line-height:1.5}
 .empty{text-align:center;padding:40px 20px;color:#bbb;font-size:14px}
@@ -83,10 +97,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .doc-btn-edit{color:#0ea5e9;border-color:#0ea5e9}
 .doc-btn-pdf{color:#f97316;border-color:#f97316}
 .doc-btn-wpp{color:#25d366;border-color:#25d366}
-.doc-btn-del{color:#e53e3e;border-color:#fecaca}
-.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:24px}
-.modal-box{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto}
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:flex-end;justify-content:center}
+.modal-box{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
 .modal-title{font-size:16px;font-weight:600}
+/* VIEW DOC */
 .view-header{background:#f97316;color:#fff;padding:20px 16px}
 .view-empresa{font-size:16px;font-weight:600}
 .view-sub{font-size:12px;opacity:.85;margin-top:2px}
@@ -107,17 +122,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ck-item-label{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:6px}
 .ck-item-desc{font-size:11px;color:#aaa;line-height:1.5;margin-bottom:8px}
 .ck-options{display:flex;gap:6px}
-.ck-opt{flex:1;padding:6px 4px;border:1px solid #e5e5e5;border-radius:8px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;transition:all .15s}
+.ck-opt{flex:1;padding:6px 4px;border:1px solid #e5e5e5;border-radius:8px;font-size:12px;font-weight:500;text-align:center;cursor:pointer}
 .ck-opt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
 .ck-opt.ajuste{border-color:#f59e0b;background:#fffbeb;color:#b45309}
 .ck-opt.reparo{border-color:#ef4444;background:#fef2f2;color:#b91c1c}
 .ck-opt.selected-ok{background:#22c55e;color:#fff;border-color:#22c55e}
 .ck-opt.selected-ajuste{background:#f59e0b;color:#fff;border-color:#f59e0b}
 .ck-opt.selected-reparo{background:#ef4444;color:#fff;border-color:#ef4444}
-/* ASSINATURA */
-.sig-canvas{width:100%;height:160px;border:1px solid #e5e5e5;border-radius:10px;touch-action:none;cursor:crosshair;background:#fafafa}
-.sig-actions{display:flex;gap:8px;margin-top:8px}
-.sig-clear{flex:1;padding:8px;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;cursor:pointer}
+.sig-canvas{width:100%;height:140px;border:1px solid #e5e5e5;border-radius:10px;touch-action:none;cursor:crosshair;background:#fafafa}
+.sig-clear{padding:8px;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;cursor:pointer;margin-top:6px}
 </style>
 </head>
 <body>
@@ -210,9 +223,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card">
         <div class="fg">
           <div class="fl"><label>Cliente</label><select id="ag-cli"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Unidade</label><select id="ag-unid"><option value="">Selecione ou deixe em branco</option></select></div>
           <div class="fl"><label>Data</label><input type="date" id="ag-data"></div>
           <div class="fl"><label>Horário</label><input type="time" id="ag-hora"></div>
-          <div class="fl"><label>Endereço</label><input type="text" id="ag-end" placeholder="Rua, número"></div>
+          <div class="fl"><label>Endereço (se diferente)</label><input type="text" id="ag-end" placeholder="Rua, número"></div>
           <div class="fl"><label>Descrição</label><textarea rows="3" id="ag-desc" placeholder="Descreva o problema..."></textarea></div>
         </div>
       </div>
@@ -237,10 +251,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- NOVO CLIENTE -->
+  <!-- NOVO/EDITAR CLIENTE -->
   <div class="screen" id="s-novo-cli">
-    <div class="topbar"><span class="tb-back" onclick="go('s-clientes')">← Clientes</span><h2>Novo cliente</h2></div>
+    <div class="topbar"><span class="tb-back" onclick="go('s-clientes')">← Clientes</span><h2 id="cli-form-title">Novo cliente</h2></div>
     <div class="content">
+      <input type="hidden" id="nc-id">
       <div class="card">
         <div class="fg">
           <div class="fl"><label>Nome completo</label><input type="text" id="nc-nome" placeholder="Ex.: João da Silva"></div>
@@ -281,6 +296,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:13px;color:#666;line-height:1.6" id="fc-obs">—</div>
       </div>
       <button class="btn-full" onclick="novoDocCli()">+ novo documento</button>
+      <button class="btn-sec" onclick="editarCli(cliAtual)">✏️ Editar cliente</button>
+      <button class="btn-danger" onclick="confirmarExcluirCli(cliAtual)">🗑️ Remover cliente</button>
+    </div>
+  </div>
+
+  <!-- UNIDADES -->
+  <div class="screen" id="s-unidades">
+    <div class="topbar"><span class="tb-back" onclick="go('s-config')">← Config</span><h2>Unidades</h2><span class="tb-act" onclick="abrirNovaUnidade()">＋</span></div>
+    <div class="content">
+      <div class="fl"><input type="text" id="busca-unid" placeholder="Buscar unidade..." oninput="filtrarUnid(this.value)"></div>
+      <div class="card" style="padding:0 14px"><div id="unid-list"><div class="loading">Carregando...</div></div></div>
     </div>
   </div>
 
@@ -311,7 +337,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- NOVO / EDITAR DOC -->
+  <!-- NOVO/EDITAR DOC -->
   <div class="screen" id="s-novo-doc">
     <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2 id="doc-title">Novo documento</h2></div>
     <div class="content">
@@ -332,6 +358,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <div class="fl"><label>Cliente</label><select id="doc-cli"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Unidade</label><select id="doc-unid"><option value="">Selecione ou deixe em branco</option></select></div>
           <div class="fl"><label>Data</label><input type="date" id="doc-data"></div>
           <div class="fl" id="doc-val-field" style="display:none"><label>Validade</label><input type="date" id="doc-validade"></div>
           <div class="fl"><label id="doc-desc-lbl">Serviço realizado</label><textarea rows="2" id="doc-desc" placeholder="Descreva..."></textarea></div>
@@ -347,6 +374,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="sec-div" style="margin-top:10px">Despesas</div>
         <div id="doc-desps"></div>
         <span class="add-btn" onclick="addItem('desps')">+ despesa</span>
+        <div class="desconto-row">
+          <span>Desconto</span>
+          <input type="number" id="doc-desconto" value="0" min="0" max="100" step="1" oninput="calcTotal()">
+          <span>%</span>
+          <span id="doc-desconto-val" style="margin-left:auto;font-size:12px;color:#e53e3e"></span>
+        </div>
         <div class="total-row"><span class="total-label">Total</span><span class="total-val" id="doc-total">R$ 0,00</span></div>
       </div>
       <button class="btn-full" onclick="salvarDoc()">salvar documento</button>
@@ -377,11 +410,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
           <div class="view-section">
             <div class="view-section-title">Descrição</div>
-            <div style="font-size:13px;line-height:1.6;color:#444" id="view-desc">—</div>
+            <div style="font-size:13px;line-height:1.6;color:#444;white-space:pre-line" id="view-desc">—</div>
           </div>
           <div class="view-section" id="view-itens-section">
             <div class="view-section-title">Itens</div>
             <div id="view-itens"></div>
+            <div id="view-desconto-row" style="display:none;font-size:12px;color:#e53e3e;text-align:right;padding:4px 0"></div>
             <div class="view-total"><span>Total</span><span id="view-total">R$ 0,00</span></div>
           </div>
           <div class="view-section" id="view-pag-section" style="display:none">
@@ -401,13 +435,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- CHECKLIST -->
   <div class="screen" id="s-checklist">
-    <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2>Checklist Manutenção</h2></div>
+    <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2 id="ck-title">Checklist Manutenção</h2></div>
     <div class="content">
+      <input type="hidden" id="ck-id">
       <div class="card">
         <div class="card-title">Identificação</div>
         <div class="fg">
           <div class="fl"><label>Cliente</label><select id="ck-cli"><option value="">Selecione...</option></select></div>
-          <div class="fl"><label>Unidade / Local</label><input type="text" id="ck-unidade" placeholder="Ex.: Hospital Municipal de Americana"></div>
+          <div class="fl"><label>Unidade</label><select id="ck-unid"><option value="">Selecione ou deixe em branco</option></select></div>
+          <div class="fl"><label>Unidade / Local (manual)</label><input type="text" id="ck-unidade" placeholder="Ex.: Hospital Municipal"></div>
           <div class="fl"><label>Endereço</label><input type="text" id="ck-end" placeholder="Rua, número, cidade"></div>
           <div class="fl"><label>Equipamento</label><input type="text" id="ck-equip" placeholder="Ex.: RaioX Fixo Siemens"></div>
           <div class="fl"><label>Número de série</label><input type="text" id="ck-serie" placeholder="Ex.: 927"></div>
@@ -416,23 +452,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="fl"><label>Data</label><input type="date" id="ck-data"></div>
         </div>
       </div>
-
       <div class="card" id="ck-itens-container"></div>
-
       <div class="card">
         <div class="card-title">Observações gerais</div>
-        <textarea rows="4" id="ck-obs" placeholder="Registre aqui observações, pendências ou recomendações..." style="width:100%;padding:9px 11px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;font-family:inherit;resize:none;outline:none"></textarea>
+        <textarea rows="4" id="ck-obs" placeholder="Registre aqui observações..." style="width:100%;padding:9px 11px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;font-family:inherit;resize:none;outline:none"></textarea>
       </div>
-
       <div class="card">
         <div class="card-title">Assinatura do técnico</div>
         <div style="font-size:12px;color:#aaa;margin-bottom:8px">Assine com o dedo na área abaixo</div>
         <canvas id="sig-canvas" class="sig-canvas"></canvas>
-        <div class="sig-actions">
-          <button class="sig-clear" onclick="limparAssinatura()">🗑️ Limpar assinatura</button>
-        </div>
+        <button class="sig-clear" onclick="limparAssinatura()">🗑️ Limpar assinatura</button>
       </div>
-
       <button class="btn-full" onclick="salvarChecklist()">salvar checklist</button>
       <button class="btn-sec" onclick="go('s-docs')">cancelar</button>
     </div>
@@ -461,6 +491,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <button class="btn-full" style="margin-top:12px" onclick="salvarEmpresa()">salvar configurações</button>
       </div>
+      <button class="btn-sec" style="margin-top:4px" onclick="go('s-unidades')">🏢 Gerenciar unidades</button>
       <button class="btn-sec" style="margin-top:4px;color:#e53e3e;border-color:#fecaca" onclick="doLogout()">Sair da conta</button>
     </div>
   </div>
@@ -470,26 +501,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- MODAL ITEM -->
 <div class="modal-bg" id="modal-item">
   <div class="modal-box">
-    <div class="modal-title">Adicionar item</div>
+    <div class="modal-title" id="modal-item-title">Adicionar item</div>
     <input type="hidden" id="modal-tipo">
+    <input type="hidden" id="modal-idx">
     <div class="fl"><label>Descrição</label><input type="text" id="modal-desc" placeholder="Ex.: Disjuntor 30A"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="fl"><label>Qtd</label><input type="number" id="modal-qtd" placeholder="1" min="1" step="1" value="1"></div>
-      <div class="fl"><label>Valor unitário (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0"></div>
+      <div class="fl"><label>Qtd</label><input type="number" id="modal-qtd" placeholder="1" min="1" step="1" value="1" oninput="calcModalSub()"></div>
+      <div class="fl"><label>Valor unitário (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0" oninput="calcModalSub()"></div>
     </div>
-    <div style="font-size:12px;color:#aaa;text-align:right" id="modal-subtotal">Subtotal: R$ 0,00</div>
-    <button class="btn-full" onclick="confirmarItem()">adicionar</button>
-    <button class="btn-sec" onclick="fecharModal('modal-item')">cancelar</button>
+    <div style="font-size:12px;color:#f97316;font-weight:500;text-align:right" id="modal-sub">Subtotal: R$ 0,00</div>
+    <button class="btn-full" style="margin-top:0" onclick="confirmarItem()">salvar</button>
+    <button class="btn-sec" style="margin-top:0" onclick="fecharModal('modal-item')">cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL UNIDADE -->
+<div class="modal-bg" id="modal-unidade">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-unid-title">Nova unidade</div>
+    <input type="hidden" id="mu-id">
+    <div class="fl"><label>Nome da unidade</label><input type="text" id="mu-nome" placeholder="Ex.: Hospital Municipal de Americana"></div>
+    <div class="fl"><label>Endereço</label><input type="text" id="mu-end" placeholder="Rua, número"></div>
+    <div class="fl"><label>Cidade</label><input type="text" id="mu-cidade" placeholder="São Paulo – SP"></div>
+    <div class="fl"><label>Contato</label><input type="text" id="mu-contato" placeholder="Nome ou telefone"></div>
+    <button class="btn-full" style="margin-top:0" onclick="salvarUnidade()">salvar</button>
+    <button class="btn-sec" style="margin-top:0" onclick="fecharModal('modal-unidade')">cancelar</button>
   </div>
 </div>
 
 <!-- MODAL EXCLUIR -->
 <div class="modal-bg" id="modal-excluir">
   <div class="modal-box">
-    <div class="modal-title">Excluir documento</div>
+    <div class="modal-title">Confirmar exclusão</div>
     <div style="font-size:14px;color:#666">Tem certeza? Esta ação não pode ser desfeita.</div>
-    <button class="btn-danger" style="margin-top:0" onclick="excluirDoc()">sim, excluir</button>
-    <button class="btn-sec" onclick="fecharModal('modal-excluir')">cancelar</button>
+    <button class="btn-danger" style="margin-top:0" onclick="excluirAtual()">sim, excluir</button>
+    <button class="btn-sec" style="margin-top:0" onclick="fecharModal('modal-excluir')">cancelar</button>
   </div>
 </div>
 
@@ -498,41 +544,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const SB_URL='https://lqebrbpwarmpubukppcs.supabase.co';
 const SB_KEY='sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
-const sb=supabase.createClient(SB_URL,SB_KEY,{
-  auth:{
-    persistSession:true,
-    storageKey:'prestadorpro-auth',
-    storage:window.localStorage,
-    autoRefreshToken:true,
-    detectSessionInUrl:true
-  }
-});
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'prestadorpro-auth',storage:window.localStorage,autoRefreshToken:true,detectSessionInUrl:true}});
 
-let user=null,clis=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null,docAtual=null,editandoId=null;
+let user=null,clis=[],unids=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null,docAtual=null,editandoId=null,excluirFn=null;
+let ckRespostas={},sigCanvas,sigCtx,sigDrawing=false,sigLX=0,sigLY=0;
 
-// TEMPLATE CHECKLIST
 const CK_TEMPLATE=[
   {secao:'Verificações Mecânicas e de Movimento',itens:[
-    {id:'cabos',label:'Cabos de Aço',desc:'Inspecionar cabos da coluna porta-tubo e bucky mural. Verificar presença de fios soltos, corrosão ou desgaste.'},
-    {id:'rolamentos',label:'Rolamentos e Trilhos',desc:'Inspecionar rolamentos da mesa, coluna e bucky mural. Verificar ruídos anormais, folgas excessivas ou travamentos.'},
-    {id:'freios',label:'Freios Magnéticos',desc:'Testar o acionamento e a eficiência dos freios da mesa, coluna e bucky mural.'},
-    {id:'parafusos',label:'Parafusos e Fixações',desc:'Realizar reaperto geral de todos os parafusos visíveis e fixações críticas do equipamento.'}
+    {id:'cabos',label:'Cabos de Aço',desc:'Inspecionar cabos da coluna porta-tubo e bucky mural.'},
+    {id:'rolamentos',label:'Rolamentos e Trilhos',desc:'Inspecionar rolamentos da mesa, coluna e bucky mural.'},
+    {id:'freios',label:'Freios Magnéticos',desc:'Testar o acionamento e a eficiência dos freios.'},
+    {id:'parafusos',label:'Parafusos e Fixações',desc:'Realizar reaperto geral de todos os parafusos visíveis.'}
   ]},
   {secao:'Verificações Elétricas e Funcionais',itens:[
-    {id:'botoes',label:'Botões e Acionamentos',desc:'Testar o funcionamento de todos os botões no painel de comando, mesa, coluna e bucky.'},
-    {id:'colimador',label:'Colimador Luminoso',desc:'Verificar o funcionamento da luz do colimador. Checar se a luz se desliga automaticamente.'},
-    {id:'scopia',label:'Sistemas de Scopia e Grafia',desc:'Testar o funcionamento dos modos de fluoroscopia e radiografia. Verificar a comutação correta.'}
+    {id:'botoes',label:'Botões e Acionamentos',desc:'Testar o funcionamento de todos os botões no painel.'},
+    {id:'colimador',label:'Colimador Luminoso',desc:'Verificar o funcionamento da luz do colimador.'},
+    {id:'scopia',label:'Sistemas de Scopia e Grafia',desc:'Testar os modos de fluoroscopia e radiografia.'}
   ]},
   {secao:'Verificações de Alinhamento e Qualidade',itens:[
-    {id:'bucky',label:'Bucky Mural e de Mesa',desc:'Verificar o funcionamento do movimento e do sistema de travamento do bucky.'},
-    {id:'grades',label:'Alinhamento de Grades',desc:'Avaliar o alinhamento da grade com o campo de radiação para ambas as unidades.'},
-    {id:'colimacao',label:'Exatidão da Colimação',desc:'Verificar a correspondência entre o campo luminoso e o campo de radiação.'},
-    {id:'limpeza',label:'Limpeza e Estado Geral',desc:'Realizar limpeza externa do equipamento. Verificar ausência de danos físicos.'}
+    {id:'bucky',label:'Bucky Mural e de Mesa',desc:'Verificar movimento e sistema de travamento do bucky.'},
+    {id:'grades',label:'Alinhamento de Grades',desc:'Avaliar alinhamento da grade com o campo de radiação.'},
+    {id:'colimacao',label:'Exatidão da Colimação',desc:'Verificar correspondência entre campo luminoso e de radiação.'},
+    {id:'limpeza',label:'Limpeza e Estado Geral',desc:'Realizar limpeza externa e verificar danos físicos.'}
   ]}
 ];
-
-let ckRespostas={};
-let sigCanvas,sigCtx,sigDrawing=false,sigLastX=0,sigLastY=0;
 
 sb.auth.onAuthStateChange((_,s)=>{
   if(s){user=s.user;initApp();}
@@ -543,23 +578,20 @@ function showEl(id){document.getElementById(id).style.display='flex';}
 function hideEl(id){document.getElementById(id).style.display='none';}
 
 async function doLogin(){
-  const e=document.getElementById('login-email').value,p=document.getElementById('login-pass').value;
-  const err=document.getElementById('err-login');err.style.display='none';
+  const e=v('login-email'),p=v('login-pass'),err=document.getElementById('err-login');
+  err.style.display='none';
   const {error}=await sb.auth.signInWithPassword({email:e,password:p});
   if(error){err.textContent='E-mail ou senha incorretos.';err.style.display='block';}
 }
-
 async function doRegister(){
-  const nome=document.getElementById('reg-nome').value,e=document.getElementById('reg-email').value,p=document.getElementById('reg-pass').value;
-  const err=document.getElementById('err-reg');err.style.display='none';
+  const nome=v('reg-nome'),e=v('reg-email'),p=v('reg-pass'),err=document.getElementById('err-reg');
+  err.style.display='none';
   const {error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:nome}}});
   if(error){err.textContent=error.message;err.style.display='block';}
-  else{err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada! Pode fazer login agora.';err.style.display='block';}
+  else{err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada!';err.style.display='block';}
 }
-
 async function doGoogle(){await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});}
 async function doLogout(){await sb.auth.signOut();}
-
 function toggleAuth(){
   const l=document.getElementById('card-login'),r=document.getElementById('card-reg');
   l.style.display=l.style.display==='none'?'flex':'none';
@@ -571,205 +603,24 @@ async function initApp(){
   const m=user.user_metadata||{};
   const nome=m.full_name||m.name||user.email.split('@')[0];
   const in2=nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
-  document.getElementById('cfg-av').textContent=in2;
-  document.getElementById('cfg-nome').textContent=nome;
-  document.getElementById('cfg-email').textContent=user.email;
+  set('cfg-av',in2);set('cfg-nome',nome);set('cfg-email',user.email);
   const t=new Date().toISOString().split('T')[0];
   ['ag-data','doc-data','ck-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
-  renderChecklistForm();
-  initSigCanvas();
-  await Promise.all([loadClis(),loadDocs(),loadAgenda(),loadEmpresa(),loadChecklists()]);
+  renderCkForm();initSig();
+  await Promise.all([loadClis(),loadUnids(),loadDocs(),loadAgenda(),loadEmpresa(),loadChecklists()]);
 }
 
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el){el.classList.add('active');el.scrollTop=0;}
+  const el=document.getElementById(id);if(el){el.classList.add('active');el.scrollTop=0;}
 }
-
 function goNav(id,el){
-  go(id);
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  go(id);document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
 }
-
 function fecharModal(id){document.getElementById(id).style.display='none';}
-
-// CHECKLIST FORM
-function renderChecklistForm(){
-  const c=document.getElementById('ck-itens-container');
-  ckRespostas={};
-  c.innerHTML=CK_TEMPLATE.map(sec=>`
-    <div class="ck-section">
-      <div class="ck-section-title">${sec.secao}</div>
-      ${sec.itens.map(it=>`
-        <div class="ck-item">
-          <div class="ck-item-label">${it.label}</div>
-          <div class="ck-item-desc">${it.desc}</div>
-          <div class="ck-options">
-            <div class="ck-opt ok" id="opt-${it.id}-ok" onclick="selecionarOpt('${it.id}','ok')">✓ OK</div>
-            <div class="ck-opt ajuste" id="opt-${it.id}-ajuste" onclick="selecionarOpt('${it.id}','ajuste')">⚠ Ajuste</div>
-            <div class="ck-opt reparo" id="opt-${it.id}-reparo" onclick="selecionarOpt('${it.id}','reparo')">✗ Reparo</div>
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
-}
-
-function selecionarOpt(id,val){
-  ckRespostas[id]=val;
-  ['ok','ajuste','reparo'].forEach(v=>{
-    const el=document.getElementById(`opt-${id}-${v}`);
-    if(!el)return;
-    el.className=`ck-opt ${v}`;
-    if(v===val)el.classList.add(`selected-${v}`);
-  });
-}
-
-// ASSINATURA
-function initSigCanvas(){
-  sigCanvas=document.getElementById('sig-canvas');
-  if(!sigCanvas)return;
-  sigCtx=sigCanvas.getContext('2d');
-  const rect=sigCanvas.getBoundingClientRect();
-  sigCanvas.width=rect.width||320;sigCanvas.height=160;
-  sigCtx.strokeStyle='#1a1a1a';sigCtx.lineWidth=2;sigCtx.lineCap='round';
-
-  sigCanvas.addEventListener('mousedown',e=>{sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLastX=e.clientX-r.left;sigLastY=e.clientY-r.top;});
-  sigCanvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLastX,sigLastY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLastX=x;sigLastY=y;});
-  sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
-  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLastX=e.touches[0].clientX-r.left;sigLastY=e.touches[0].clientY-r.top;},{passive:false});
-  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.touches[0].clientX-r.left,y=e.touches[0].clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLastX,sigLastY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLastX=x;sigLastY=y;},{passive:false});
-  sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
-}
-
-function limparAssinatura(){
-  if(sigCtx)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
-}
-
-function getAssinatura(){
-  if(!sigCanvas)return null;
-  const blank=document.createElement('canvas');blank.width=sigCanvas.width;blank.height=sigCanvas.height;
-  if(sigCanvas.toDataURL()===blank.toDataURL())return null;
-  return sigCanvas.toDataURL('image/png');
-}
-
-async function salvarChecklist(){
-  const cliId=document.getElementById('ck-cli').value;
-  if(!cliId){alert('Selecione um cliente.');return;}
-  const assinatura=getAssinatura();
-  const {error}=await sb.from('checklists').insert({
-    user_id:user.id,
-    cliente_id:cliId,
-    unidade:document.getElementById('ck-unidade').value,
-    endereco:document.getElementById('ck-end').value,
-    equipamento:document.getElementById('ck-equip').value,
-    numero_serie:document.getElementById('ck-serie').value,
-    ordem_servico:document.getElementById('ck-os').value,
-    tecnico:document.getElementById('ck-tecnico').value,
-    data:document.getElementById('ck-data').value,
-    itens:ckRespostas,
-    observacoes:document.getElementById('ck-obs').value,
-    assinatura:assinatura
-  });
-  if(!error){
-    await loadChecklists();
-    alert('Checklist salvo!');
-    go('s-docs');
-  } else alert('Erro: '+error.message);
-}
-
-async function loadChecklists(){
-  const {data}=await sb.from('checklists').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(10);
-  const lista=data||[];
-  const el=document.getElementById('cklists-all');
-  if(!lista.length){el.innerHTML='<div class="empty">Nenhum checklist ainda.</div>';return;}
-  el.innerHTML=lista.map(ck=>`
-    <div class="li">
-      <div class="li-av" style="font-size:16px">✅</div>
-      <div class="li-body">
-        <div class="li-name">${ck.clientes?.nome||'—'}</div>
-        <div class="li-sub">${ck.equipamento||''} · ${fmt(ck.data)}</div>
-        <div class="doc-actions">
-          <span class="doc-btn doc-btn-pdf" onclick="gerarPDFChecklist('${ck.id}')">📄 PDF</span>
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-async function gerarPDFChecklist(ckId){
-  const {data:ck}=await sb.from('checklists').select('*,clientes(*)').eq('id',ckId).single();
-  if(!ck)return;
-  const e=await getEmpresa();
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF();
-  let y=15;
-
-  pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,y);y+=6;
-  pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
-  if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,y);y+=5;
-  if(e.telefone)pdf.text('Tel: '+e.telefone,20,y);y+=5;
-  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=7;
-
-  pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
-  pdf.text('CHECKLIST DE MANUTENÇÃO PREVENTIVA',105,y,{align:'center'});y+=8;
-
-  pdf.setFontSize(9);pdf.setFont('helvetica','normal');
-  const campos=[
-    ['Unidade',ck.unidade||'—'],['Endereço',ck.endereco||'—'],
-    ['Equipamento',ck.equipamento||'—'],['Nº Série',ck.numero_serie||'—'],
-    ['OS',ck.ordem_servico||'—'],['Data',fmtFull(ck.data)]
-  ];
-  campos.forEach(([k,v])=>{
-    pdf.setFont('helvetica','bold');pdf.text(k+':',20,y);
-    pdf.setFont('helvetica','normal');pdf.text(v,60,y);y+=5;
-  });
-  y+=3;pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;
-
-  const itens=ck.itens||{};
-  CK_TEMPLATE.forEach(sec=>{
-    pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.setTextColor(249,115,22);
-    pdf.text(sec.secao.toUpperCase(),20,y);y+=5;
-    pdf.setTextColor(0);
-    sec.itens.forEach(it=>{
-      if(y>265){pdf.addPage();y=20;}
-      const resp=itens[it.id]||'—';
-      const cor=resp==='ok'?[34,197,94]:resp==='ajuste'?[245,158,11]:resp==='reparo'?[239,68,68]:[150,150,150];
-      pdf.setFont('helvetica','normal');pdf.setFontSize(8);
-      pdf.text(it.label,22,y);
-      pdf.setTextColor(...cor);pdf.setFont('helvetica','bold');
-      pdf.text(resp==='ok'?'✓ OK':resp==='ajuste'?'⚠ Ajuste':resp==='reparo'?'✗ Reparo':'Não avaliado',160,y,{align:'right'});
-      pdf.setTextColor(0);y+=5;
-    });
-    y+=3;
-  });
-
-  if(ck.observacoes){
-    pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;
-    pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Observações Gerais',20,y);y+=5;
-    pdf.setFont('helvetica','normal');
-    const obsLines=pdf.splitTextToSize(ck.observacoes,170);
-    pdf.text(obsLines,20,y);y+=obsLines.length*5+4;
-  }
-
-  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=8;
-  pdf.setFont('helvetica','normal');pdf.setFontSize(9);
-  pdf.text('Técnico responsável: '+(ck.tecnico||'—'),20,y);y+=5;
-  pdf.text('Data: '+fmtFull(ck.data),20,y);y+=10;
-
-  if(ck.assinatura){
-    try{
-      pdf.text('Assinatura:',20,y);y+=4;
-      pdf.addImage(ck.assinatura,'PNG',20,y,80,30);y+=35;
-    }catch(e){}
-  } else {
-    pdf.line(20,y,100,y);y+=5;
-    pdf.setFontSize(8);pdf.setTextColor(150);pdf.text('Assinatura do técnico',20,y);
-  }
-
-  pdf.setFontSize(8);pdf.setTextColor(150);
-  pdf.text(e.nome||'PrestadorPro',105,285,{align:'center'});
-  pdf.save(`CHECKLIST-${(ck.clientes?.nome||'doc').replace(/ /g,'_')}-${ck.data}.pdf`);
-}
+function v(id){return document.getElementById(id)?.value||'';}
+function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
 
 // CLIENTES
 async function loadClis(){
@@ -777,50 +628,139 @@ async function loadClis(){
   clis=data||[];renderClis(clis);updateSelects();
   document.getElementById('m-cli').textContent=clis.length;
 }
-
 function renderClis(lista){
   const el=document.getElementById('cli-list');
   if(!lista.length){el.innerHTML='<div class="empty">Nenhum cliente ainda.</div>';return;}
-  el.innerHTML=lista.map(c=>`<div class="li" style="cursor:pointer" onclick="verCli('${c.id}')"><div class="li-av">${ini(c.nome)}</div><div class="li-body"><div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div></div><div class="li-r">›</div></div>`).join('');
+  el.innerHTML=lista.map(c=>`
+    <div class="li">
+      <div class="li-av" onclick="verCli('${c.id}')" style="cursor:pointer">${ini(c.nome)}</div>
+      <div class="li-body" onclick="verCli('${c.id}')" style="cursor:pointer">
+        <div class="li-name">${c.nome}</div>
+        <div class="li-sub">${c.whatsapp||''}</div>
+      </div>
+      <div class="li-actions">
+        <span class="li-btn li-btn-edit" onclick="editarCli('${c.id}')">✏️</span>
+        <span class="li-btn li-btn-del" onclick="confirmarExcluirCli('${c.id}')">🗑️</span>
+      </div>
+    </div>`).join('');
 }
-
 function filtrarCli(q){renderClis(clis.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase())));}
-
 function updateSelects(){
-  const opts=clis.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
-  ['ag-cli','doc-cli','ck-cli'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+opts;});
+  const cOpts=clis.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+  ['ag-cli','doc-cli','ck-cli'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+cOpts;});
+  const uOpts=unids.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('');
+  ['ag-unid','doc-unid','ck-unid'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Nenhuma</option>'+uOpts;});
 }
-
+function novoCliForm(){
+  document.getElementById('nc-id').value='';
+  document.getElementById('cli-form-title').textContent='Novo cliente';
+  ['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');
+  go('s-novo-cli');
+}
+function editarCli(id){
+  const c=clis.find(x=>x.id===id);if(!c)return;
+  document.getElementById('nc-id').value=c.id;
+  document.getElementById('cli-form-title').textContent='Editar cliente';
+  document.getElementById('nc-nome').value=c.nome||'';
+  document.getElementById('nc-wpp').value=c.whatsapp||'';
+  document.getElementById('nc-end').value=c.endereco||'';
+  document.getElementById('nc-cidade').value=c.cidade||'';
+  document.getElementById('nc-obs').value=c.observacoes||'';
+  go('s-novo-cli');
+}
 async function salvarCli(){
-  const nome=document.getElementById('nc-nome').value.trim();
-  if(!nome){alert('Nome obrigatório.');return;}
-  const {error}=await sb.from('clientes').insert({user_id:user.id,nome,whatsapp:document.getElementById('nc-wpp').value,endereco:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cidade').value,observacoes:document.getElementById('nc-obs').value});
-  if(!error){['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');await loadClis();go('s-clientes');}
+  const nome=v('nc-nome').trim();if(!nome){alert('Nome obrigatório.');return;}
+  const id=v('nc-id');
+  const payload={user_id:user.id,nome,whatsapp:v('nc-wpp'),endereco:v('nc-end'),cidade:v('nc-cidade'),observacoes:v('nc-obs')};
+  let error;
+  if(id){({error}=await sb.from('clientes').update(payload).eq('id',id));}
+  else{({error}=await sb.from('clientes').insert(payload));}
+  if(!error){await loadClis();go('s-clientes');}
   else alert('Erro: '+error.message);
 }
-
+function confirmarExcluirCli(id){
+  excluirFn=async()=>{
+    await sb.from('clientes').delete().eq('id',id);
+    await loadClis();fecharModal('modal-excluir');go('s-clientes');
+  };
+  document.getElementById('modal-excluir').style.display='flex';
+}
 async function verCli(id){
   cliAtual=id;const c=clis.find(x=>x.id===id);if(!c)return;
-  document.getElementById('fc-av').textContent=ini(c.nome);
-  document.getElementById('fc-nome').textContent=c.nome;
-  document.getElementById('fc-wpp').textContent=c.whatsapp||'—';
-  document.getElementById('fc-end').textContent=[c.endereco,c.cidade].filter(Boolean).join(', ')||'—';
-  if(c.observacoes){document.getElementById('fc-obs').textContent=c.observacoes;document.getElementById('fc-obs-card').style.display='block';}
+  set('fc-av',ini(c.nome));set('fc-nome',c.nome);set('fc-wpp',c.whatsapp||'—');
+  set('fc-end',[c.endereco,c.cidade].filter(Boolean).join(', ')||'—');
+  if(c.observacoes){set('fc-obs',c.observacoes);document.getElementById('fc-obs-card').style.display='block';}
   else document.getElementById('fc-obs-card').style.display='none';
   go('s-ficha-cli');
   const {data}=await sb.from('documentos').select('*').eq('cliente_id',id).order('created_at',{ascending:false});
   const docs=data||[];
-  document.getElementById('fc-n-os').textContent=docs.filter(d=>d.tipo==='OS').length;
-  document.getElementById('fc-n-orc').textContent=docs.filter(d=>d.tipo==='ORC').length;
-  document.getElementById('fc-total').textContent='R$'+docs.filter(d=>d.tipo==='OS').reduce((s,d)=>s+(d.total||0),0).toLocaleString('pt-BR');
+  set('fc-n-os',docs.filter(d=>d.tipo==='OS').length);
+  set('fc-n-orc',docs.filter(d=>d.tipo==='ORC').length);
+  set('fc-total','R$'+docs.filter(d=>d.tipo==='OS').reduce((s,d)=>s+(d.total||0),0).toLocaleString('pt-BR'));
   const hist=document.getElementById('fc-hist');
   if(!docs.length){hist.innerHTML='<div class="empty" style="padding:16px 0">Nenhum documento ainda.</div>';return;}
   hist.innerHTML=docs.map(d=>`<div class="li" style="cursor:pointer" onclick="verDoc('${d.id}')"><div class="li-av" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.descricao||'—'}</div><div class="li-sub">${fmt(d.data)} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div></div>`).join('');
 }
-
 function novoDocCli(){iniciarDoc('ORC');setTimeout(()=>{if(cliAtual)document.getElementById('doc-cli').value=cliAtual;},100);}
 
-// DOCS
+// UNIDADES
+async function loadUnids(){
+  const {data}=await sb.from('unidades').select('*').eq('user_id',user.id).order('nome');
+  unids=data||[];renderUnids(unids);updateSelects();
+}
+function renderUnids(lista){
+  const el=document.getElementById('unid-list');if(!el)return;
+  if(!lista.length){el.innerHTML='<div class="empty">Nenhuma unidade cadastrada.</div>';return;}
+  el.innerHTML=lista.map(u=>`
+    <div class="li">
+      <div class="li-av" style="font-size:16px">🏢</div>
+      <div class="li-body">
+        <div class="li-name">${u.nome}</div>
+        <div class="li-sub">${[u.endereco,u.cidade].filter(Boolean).join(', ')||''}</div>
+      </div>
+      <div class="li-actions">
+        <span class="li-btn li-btn-edit" onclick="editarUnidade('${u.id}')">✏️</span>
+        <span class="li-btn li-btn-del" onclick="excluirUnidade('${u.id}')">🗑️</span>
+      </div>
+    </div>`).join('');
+}
+function filtrarUnid(q){renderUnids(unids.filter(u=>u.nome.toLowerCase().includes(q.toLowerCase())));}
+function abrirNovaUnidade(){
+  document.getElementById('mu-id').value='';
+  document.getElementById('modal-unid-title').textContent='Nova unidade';
+  ['mu-nome','mu-end','mu-cidade','mu-contato'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-unidade').style.display='flex';
+}
+function editarUnidade(id){
+  const u=unids.find(x=>x.id===id);if(!u)return;
+  document.getElementById('mu-id').value=u.id;
+  document.getElementById('modal-unid-title').textContent='Editar unidade';
+  document.getElementById('mu-nome').value=u.nome||'';
+  document.getElementById('mu-end').value=u.endereco||'';
+  document.getElementById('mu-cidade').value=u.cidade||'';
+  document.getElementById('mu-contato').value=u.contato||'';
+  document.getElementById('modal-unidade').style.display='flex';
+}
+async function salvarUnidade(){
+  const nome=v('mu-nome').trim();if(!nome){alert('Nome obrigatório.');return;}
+  const id=v('mu-id');
+  const payload={user_id:user.id,nome,endereco:v('mu-end'),cidade:v('mu-cidade'),contato:v('mu-contato')};
+  let error;
+  if(id){({error}=await sb.from('unidades').update(payload).eq('id',id));}
+  else{({error}=await sb.from('unidades').insert(payload));}
+  if(!error){fecharModal('modal-unidade');await loadUnids();}
+  else alert('Erro: '+error.message);
+}
+function excluirUnidade(id){
+  excluirFn=async()=>{
+    await sb.from('unidades').delete().eq('id',id);
+    await loadUnids();fecharModal('modal-excluir');
+  };
+  document.getElementById('modal-excluir').style.display='flex';
+}
+async function excluirAtual(){if(excluirFn)await excluirFn();}
+
+// DOCUMENTOS
 async function loadDocs(){
   const {data}=await sb.from('documentos').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
@@ -828,7 +768,6 @@ async function loadDocs(){
   document.getElementById('docs-home').innerHTML=renderDocs(docs.slice(0,5));
   document.getElementById('docs-all').innerHTML=renderDocs(docs);
 }
-
 function renderDocs(lista){
   if(!lista.length)return'<div class="empty">Nenhum documento ainda.</div>';
   return lista.map(d=>`
@@ -847,17 +786,17 @@ function renderDocs(lista){
       <div class="li-r">${fmt(d.data)}</div>
     </div>`).join('');
 }
-
 function iniciarDoc(tipo){
   editandoId=null;docItens={pecas:[],servs:[],desps:[]};renderItens();
   document.getElementById('doc-tipo').value=tipo;
   document.getElementById('doc-desc').value='';
   document.getElementById('doc-manut').value='';
+  document.getElementById('doc-desconto').value='0';
+  document.getElementById('doc-desconto-val').textContent='';
   onTipoChange();go('s-novo-doc');
 }
-
 async function editarDoc(id){
-  const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',id).single();
+  const {data:doc}=await sb.from('documentos').select('*').eq('id',id).single();
   if(!doc)return;
   editandoId=id;
   docItens=doc.itens||{pecas:[],servs:[],desps:[]};
@@ -868,13 +807,14 @@ async function editarDoc(id){
   document.getElementById('doc-desc').value=doc.descricao||'';
   document.getElementById('doc-data').value=doc.data||'';
   document.getElementById('doc-manut').value=doc.manutencao||'';
-  await loadClis();
+  document.getElementById('doc-desconto').value=doc.desconto||0;
+  await loadClis();await loadUnids();
   document.getElementById('doc-cli').value=doc.cliente_id||'';
+  document.getElementById('doc-unid').value=doc.unidade_id||'';
   onTipoChange();renderItens();
   document.getElementById('doc-title').textContent='Editar documento';
   go('s-novo-doc');
 }
-
 function onTipoChange(){
   const t=document.getElementById('doc-tipo').value;
   document.getElementById('doc-title').textContent=editandoId?'Editar documento':t==='OS'?'Ordem de Serviço':t==='ORC'?'Orçamento':'Laudo Técnico';
@@ -883,82 +823,91 @@ function onTipoChange(){
   document.getElementById('doc-itens-card').style.display=t==='LAUDO'?'none':'block';
   document.getElementById('doc-manut-field').style.display=t==='OS'?'flex':'none';
 }
-
-function addItem(tipo){
+function addItem(tipo,idx){
   document.getElementById('modal-tipo').value=tipo;
-  document.getElementById('modal-desc').value='';
-  document.getElementById('modal-qtd').value='1';
-  document.getElementById('modal-val').value='';
-  document.getElementById('modal-subtotal').textContent='Subtotal: R$ 0,00';
+  if(idx!==undefined){
+    const it=docItens[tipo][idx];
+    document.getElementById('modal-idx').value=idx;
+    document.getElementById('modal-item-title').textContent='Editar item';
+    document.getElementById('modal-desc').value=it.desc;
+    document.getElementById('modal-qtd').value=it.qtd||1;
+    document.getElementById('modal-val').value=it.val;
+    calcModalSub();
+  } else {
+    document.getElementById('modal-idx').value='';
+    document.getElementById('modal-item-title').textContent='Adicionar item';
+    document.getElementById('modal-desc').value='';
+    document.getElementById('modal-qtd').value='1';
+    document.getElementById('modal-val').value='';
+    document.getElementById('modal-sub').textContent='Subtotal: R$ 0,00';
+  }
   document.getElementById('modal-item').style.display='flex';
   setTimeout(()=>document.getElementById('modal-desc').focus(),100);
-  document.getElementById('modal-qtd').oninput=calcModalSubtotal;
-  document.getElementById('modal-val').oninput=calcModalSubtotal;
 }
-
-function calcModalSubtotal(){
-  const qtd=parseFloat(document.getElementById('modal-qtd').value)||1;
-  const val=parseFloat(document.getElementById('modal-val').value)||0;
-  document.getElementById('modal-subtotal').textContent='Subtotal: R$ '+(qtd*val).toLocaleString('pt-BR',{minimumFractionDigits:2});
+function calcModalSub(){
+  const q=parseFloat(v('modal-qtd'))||1,val=parseFloat(v('modal-val'))||0;
+  document.getElementById('modal-sub').textContent='Subtotal: R$ '+(q*val).toLocaleString('pt-BR',{minimumFractionDigits:2});
 }
-
 function confirmarItem(){
-  const tipo=document.getElementById('modal-tipo').value;
-  const desc=document.getElementById('modal-desc').value.trim();
-  const qtd=parseFloat(document.getElementById('modal-qtd').value)||1;
-  const val=parseFloat(document.getElementById('modal-val').value||'0');
+  const tipo=v('modal-tipo'),desc=v('modal-desc').trim();
+  const qtd=parseFloat(v('modal-qtd'))||1,val=parseFloat(v('modal-val')||'0');
   if(!desc){alert('Descrição obrigatória.');return;}
-  docItens[tipo].push({desc,qtd,val,total:qtd*val});
+  const idx=v('modal-idx');
+  const item={desc,qtd,val,total:qtd*val};
+  if(idx!==''){docItens[tipo][parseInt(idx)]=item;}
+  else{docItens[tipo].push(item);}
   renderItens();fecharModal('modal-item');
 }
-
 function renderItens(){
   ['pecas','servs','desps'].forEach(t=>{
     const el=document.getElementById('doc-'+t);if(!el)return;
     el.innerHTML=(docItens[t]||[]).map((it,i)=>`
-      <div class="line-item">
-        <span class="ld">
-          ${it.desc}
-          ${it.qtd>1?`<span style="font-size:11px;color:#aaa"> × ${it.qtd}</span>`:''}
-        </span>
+      <div class="line-item" onclick="addItem('${t}',${i})">
+        <span class="ld">${it.desc}${it.qtd>1?` <span style="font-size:11px;color:#aaa">× ${it.qtd}</span>`:''}
+        <span style="font-size:11px;color:#aaa;display:block">R$ ${it.val.toFixed(2)} un.</span></span>
         <span class="lv">R$ ${(it.total||it.val||0).toFixed(2)}</span>
-        <span class="ldel" onclick="delItem('${t}',${i})">×</span>
+        <span class="ldel" onclick="event.stopPropagation();delItem('${t}',${i})">×</span>
       </div>`).join('');
   });calcTotal();
 }
-
+function delItem(t,i){docItens[t].splice(i,1);renderItens();}
 function calcTotal(){
   const all=[...(docItens.pecas||[]),...(docItens.servs||[]),...(docItens.desps||[])];
-  const total=all.reduce((s,it)=>s+(it.total||it.val||0),0);
+  const sub=all.reduce((s,it)=>s+(it.total||it.val||0),0);
+  const desc=parseFloat(v('doc-desconto'))||0;
+  const valDesc=sub*(desc/100);
+  const total=sub-valDesc;
+  const dEl=document.getElementById('doc-desconto-val');
+  if(dEl)dEl.textContent=desc>0?`− R$ ${valDesc.toLocaleString('pt-BR',{minimumFractionDigits:2})}`:'';
   document.getElementById('doc-total').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
   return total;
 }
-
 async function salvarDoc(){
   const tipo=document.getElementById('doc-tipo').value;
-  const cliId=document.getElementById('doc-cli').value;
-  if(!cliId){alert('Selecione um cliente.');return;}
+  const cliId=v('doc-cli');if(!cliId){alert('Selecione um cliente.');return;}
   const total=calcTotal();
-  const payload={user_id:user.id,cliente_id:cliId,tipo,data:document.getElementById('doc-data').value,descricao:document.getElementById('doc-desc').value,total,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:document.getElementById('doc-manut').value||null};
+  const all=[...(docItens.pecas||[]),...(docItens.servs||[]),...(docItens.desps||[])];
+  const sub=all.reduce((s,it)=>s+(it.total||it.val||0),0);
+  const desc=parseFloat(v('doc-desconto'))||0;
+  const payload={user_id:user.id,cliente_id:cliId,unidade_id:v('doc-unid')||null,tipo,data:v('doc-data'),descricao:v('doc-desc'),total,desconto:desc,subtotal:sub,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:v('doc-manut')||null};
   let error;
   if(editandoId){({error}=await sb.from('documentos').update(payload).eq('id',editandoId));}
   else{({error}=await sb.from('documentos').insert(payload));}
   if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert(editandoId?'Atualizado!':'Salvo!');go('s-docs');}
   else alert('Erro: '+error.message);
 }
-
 async function verDoc(id){
   docAtual=id;
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',id).single();
   if(!doc)return;
   const e=await getEmpresa();const c=doc.clientes;const it=doc.itens||{};
-  document.getElementById('view-empresa').textContent=e.nome||'Empresa';
-  document.getElementById('view-empresa-info').textContent=[e.cnpj,e.telefone].filter(Boolean).join(' · ')||'';
-  document.getElementById('view-tipo').textContent=doc.tipo==='OS'?'Ordem de Serviço':doc.tipo==='ORC'?'Orçamento':'Laudo Técnico';
-  document.getElementById('view-cli-nome').textContent=c?.nome||'—';
-  document.getElementById('view-cli-wpp').textContent=c?.whatsapp||'';
-  document.getElementById('view-cli-end').textContent=[c?.endereco,c?.cidade].filter(Boolean).join(', ')||'';
-  document.getElementById('view-data').textContent=fmtFull(doc.data);
+  set('view-empresa',e.nome||'Empresa');
+  set('view-empresa-info',[e.cnpj,e.telefone].filter(Boolean).join(' · ')||'');
+  set('view-tipo',doc.tipo==='OS'?'Ordem de Serviço':doc.tipo==='ORC'?'Orçamento':'Laudo Técnico');
+  set('view-cli-nome',c?.nome||'—');
+  set('view-cli-wpp',c?.whatsapp||'');
+  set('view-cli-end',[c?.endereco,c?.cidade].filter(Boolean).join(', ')||'');
+  set('view-data',fmtFull(doc.data));
   document.getElementById('view-desc').textContent=doc.descricao||'—';
   const badge=document.getElementById('view-manut-badge');
   if(doc.manutencao)badge.innerHTML=`<span class="badge-manut ${doc.manutencao==='preventiva'?'badge-prev':'badge-corr'}">${doc.manutencao==='preventiva'?'Preventiva':'Corretiva'}</span>`;
@@ -966,21 +915,23 @@ async function verDoc(id){
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
   if(all.length){
     document.getElementById('view-itens-section').style.display='block';
-    document.getElementById('view-itens').innerHTML=all.map(x=>`<div class="view-row"><span>${x.desc}</span><span>R$ ${x.val.toFixed(2)}</span></div>`).join('');
-    document.getElementById('view-total').textContent='R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById('view-itens').innerHTML=all.map(x=>`<div class="view-row"><span>${x.desc}${x.qtd>1?` × ${x.qtd}`:''}</span><span>R$ ${(x.total||x.val||0).toFixed(2)}</span></div>`).join('');
+    const desc=doc.desconto||0;const sub=doc.subtotal||doc.total||0;
+    const dr=document.getElementById('view-desconto-row');
+    if(desc>0){dr.style.display='block';dr.textContent=`Desconto ${desc}%: − R$ ${(sub*(desc/100)).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;}
+    else dr.style.display='none';
+    set('view-total','R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}));
   }else document.getElementById('view-itens-section').style.display='none';
-  if(e.pagamento){document.getElementById('view-pag-section').style.display='block';document.getElementById('view-pag').textContent=e.pagamento;}
+  if(e.pagamento){document.getElementById('view-pag-section').style.display='block';set('view-pag',e.pagamento);}
   else document.getElementById('view-pag-section').style.display='none';
   go('s-view-doc');
 }
-
-function confirmarExcluir(id){docAtual=id;document.getElementById('modal-excluir').style.display='flex';}
-
-async function excluirDoc(){
-  if(!docAtual)return;
-  const {error}=await sb.from('documentos').delete().eq('id',docAtual);
-  if(!error){fecharModal('modal-excluir');await loadDocs();go('s-docs');}
-  else alert('Erro: '+error.message);
+function confirmarExcluir(id){
+  excluirFn=async()=>{
+    await sb.from('documentos').delete().eq('id',id);
+    fecharModal('modal-excluir');await loadDocs();go('s-docs');
+  };
+  document.getElementById('modal-excluir').style.display='flex';
 }
 
 // AGENDA
@@ -989,19 +940,129 @@ async function loadAgenda(){
   const ags=data||[];
   const hoje=new Date().toISOString().split('T')[0];
   const hj=ags.filter(a=>a.data===hoje);
-  if(hj.length){document.getElementById('notif-hoje').style.display='flex';document.getElementById('notif-txt').textContent=`Você tem ${hj.length} serviço(s) agendado(s) para hoje.`;}
+  if(hj.length){document.getElementById('notif-hoje').style.display='flex';set('notif-txt',`Você tem ${hj.length} serviço(s) agendado(s) para hoje.`);}
   const el=document.getElementById('agenda-list');
   if(!ags.length){el.innerHTML='<div class="empty">Nenhum agendamento ainda.</div>';return;}
   const grupos={};ags.forEach(a=>{if(!grupos[a.data])grupos[a.data]=[];grupos[a.data].push(a);});
   el.innerHTML=Object.entries(grupos).map(([d,items])=>`<div class="card"><div class="card-title">${fmtLong(d)}</div>${items.map(a=>`<div class="li"><div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div><div class="li-body"><div class="li-name">${a.clientes?.nome||'—'}</div><div class="li-sub">${a.descricao||''}</div><div class="li-sub">${a.endereco||''}</div></div></div>`).join('')}</div>`).join('');
 }
-
 async function salvarAgend(){
-  const cliId=document.getElementById('ag-cli').value;
-  if(!cliId){alert('Selecione um cliente.');return;}
-  const {error}=await sb.from('agendamentos').insert({user_id:user.id,cliente_id:cliId,data:document.getElementById('ag-data').value,hora:document.getElementById('ag-hora').value,endereco:document.getElementById('ag-end').value,descricao:document.getElementById('ag-desc').value});
-  if(!error){['ag-cli','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await loadAgenda();go('s-agenda');}
+  const cliId=v('ag-cli');if(!cliId){alert('Selecione um cliente.');return;}
+  const unidId=v('ag-unid');
+  let end=v('ag-end');
+  if(!end&&unidId){const u=unids.find(x=>x.id===unidId);if(u)end=[u.endereco,u.cidade].filter(Boolean).join(', ');}
+  const {error}=await sb.from('agendamentos').insert({user_id:user.id,cliente_id:cliId,unidade_id:unidId||null,data:v('ag-data'),hora:v('ag-hora'),endereco:end,descricao:v('ag-desc')});
+  if(!error){['ag-cli','ag-unid','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await loadAgenda();go('s-agenda');}
   else alert('Erro: '+error.message);
+}
+
+// CHECKLIST
+function renderCkForm(){
+  const c=document.getElementById('ck-itens-container');if(!c)return;
+  ckRespostas={};
+  c.innerHTML=CK_TEMPLATE.map(sec=>`
+    <div class="ck-section">
+      <div class="ck-section-title">${sec.secao}</div>
+      ${sec.itens.map(it=>`
+        <div class="ck-item">
+          <div class="ck-item-label">${it.label}</div>
+          <div class="ck-item-desc">${it.desc}</div>
+          <div class="ck-options">
+            <div class="ck-opt ok" id="opt-${it.id}-ok" onclick="selOpt('${it.id}','ok')">✓ OK</div>
+            <div class="ck-opt ajuste" id="opt-${it.id}-ajuste" onclick="selOpt('${it.id}','ajuste')">⚠ Ajuste</div>
+            <div class="ck-opt reparo" id="opt-${it.id}-reparo" onclick="selOpt('${it.id}','reparo')">✗ Reparo</div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+function selOpt(id,val){
+  ckRespostas[id]=val;
+  ['ok','ajuste','reparo'].forEach(v=>{
+    const el=document.getElementById(`opt-${id}-${v}`);if(!el)return;
+    el.className=`ck-opt ${v}`;if(v===val)el.classList.add(`selected-${v}`);
+  });
+}
+function initSig(){
+  sigCanvas=document.getElementById('sig-canvas');if(!sigCanvas)return;
+  sigCtx=sigCanvas.getContext('2d');
+  const r=sigCanvas.getBoundingClientRect();
+  sigCanvas.width=r.width||320;sigCanvas.height=140;
+  sigCtx.strokeStyle='#1a1a1a';sigCtx.lineWidth=2;sigCtx.lineCap='round';
+  sigCanvas.addEventListener('mousedown',e=>{sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLX=e.clientX-r.left;sigLY=e.clientY-r.top;});
+  sigCanvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLX,sigLY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLX=x;sigLY=y;});
+  sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
+  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLX=e.touches[0].clientX-r.left;sigLY=e.touches[0].clientY-r.top;},{passive:false});
+  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.touches[0].clientX-r.left,y=e.touches[0].clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLX,sigLY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLX=x;sigLY=y;},{passive:false});
+  sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
+}
+function limparAssinatura(){if(sigCtx)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);}
+function getSig(){
+  if(!sigCanvas)return null;
+  const b=document.createElement('canvas');b.width=sigCanvas.width;b.height=sigCanvas.height;
+  if(sigCanvas.toDataURL()===b.toDataURL())return null;
+  return sigCanvas.toDataURL('image/png');
+}
+async function salvarChecklist(){
+  const cliId=v('ck-cli');if(!cliId){alert('Selecione um cliente.');return;}
+  const ckId=v('ck-id');
+  const unidId=v('ck-unid');
+  let unidNome=v('ck-unidade');
+  if(!unidNome&&unidId){const u=unids.find(x=>x.id===unidId);if(u)unidNome=u.nome;}
+  let unidEnd=v('ck-end');
+  if(!unidEnd&&unidId){const u=unids.find(x=>x.id===unidId);if(u)unidEnd=[u.endereco,u.cidade].filter(Boolean).join(', ');}
+  const payload={user_id:user.id,cliente_id:cliId,unidade_id:unidId||null,unidade:unidNome,endereco:unidEnd,equipamento:v('ck-equip'),numero_serie:v('ck-serie'),ordem_servico:v('ck-os'),tecnico:v('ck-tecnico'),data:v('ck-data'),itens:ckRespostas,observacoes:v('ck-obs'),assinatura:getSig()};
+  let error;
+  if(ckId){({error}=await sb.from('checklists').update(payload).eq('id',ckId));}
+  else{({error}=await sb.from('checklists').insert(payload));}
+  if(!error){await loadChecklists();alert('Checklist salvo!');go('s-docs');}
+  else alert('Erro: '+error.message);
+}
+async function loadChecklists(){
+  const {data}=await sb.from('checklists').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(10);
+  const lista=data||[];
+  const el=document.getElementById('cklists-all');if(!el)return;
+  if(!lista.length){el.innerHTML='<div class="empty">Nenhum checklist ainda.</div>';return;}
+  el.innerHTML=lista.map(ck=>`
+    <div class="li">
+      <div class="li-av" style="font-size:16px">✅</div>
+      <div class="li-body">
+        <div class="li-name">${ck.clientes?.nome||'—'}</div>
+        <div class="li-sub">${ck.equipamento||''} · ${fmt(ck.data)}</div>
+        <div class="doc-actions">
+          <span class="doc-btn doc-btn-edit" onclick="editarChecklist('${ck.id}')">✏️ Editar</span>
+          <span class="doc-btn doc-btn-pdf" onclick="gerarPDFChecklist('${ck.id}')">📄 PDF</span>
+          <span class="doc-btn" style="color:#e53e3e;border-color:#fecaca" onclick="excluirChecklist('${ck.id}')">🗑️</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+async function editarChecklist(id){
+  const {data:ck}=await sb.from('checklists').select('*').eq('id',id).single();
+  if(!ck)return;
+  document.getElementById('ck-id').value=ck.id;
+  document.getElementById('ck-title').textContent='Editar Checklist';
+  document.getElementById('ck-unidade').value=ck.unidade||'';
+  document.getElementById('ck-end').value=ck.endereco||'';
+  document.getElementById('ck-equip').value=ck.equipamento||'';
+  document.getElementById('ck-serie').value=ck.numero_serie||'';
+  document.getElementById('ck-os').value=ck.ordem_servico||'';
+  document.getElementById('ck-tecnico').value=ck.tecnico||'';
+  document.getElementById('ck-data').value=ck.data||'';
+  document.getElementById('ck-obs').value=ck.observacoes||'';
+  await loadClis();await loadUnids();
+  document.getElementById('ck-cli').value=ck.cliente_id||'';
+  document.getElementById('ck-unid').value=ck.unidade_id||'';
+  renderCkForm();
+  const itens=ck.itens||{};
+  Object.entries(itens).forEach(([id,val])=>selOpt(id,val));
+  go('s-checklist');
+}
+function excluirChecklist(id){
+  excluirFn=async()=>{
+    await sb.from('checklists').delete().eq('id',id);
+    await loadChecklists();fecharModal('modal-excluir');
+  };
+  document.getElementById('modal-excluir').style.display='flex';
 }
 
 // EMPRESA
@@ -1017,25 +1078,21 @@ async function loadEmpresa(){
     document.getElementById('cfg-pag').value=data.pagamento||'';
   }catch(e){}
 }
-
 async function salvarEmpresa(){
-  const {error}=await sb.from('empresa').upsert({user_id:user.id,nome:document.getElementById('cfg-empresa').value,cnpj:document.getElementById('cfg-cnpj').value,endereco:document.getElementById('cfg-end').value,cidade:document.getElementById('cfg-cidade').value,telefone:document.getElementById('cfg-tel').value,pagamento:document.getElementById('cfg-pag').value},{onConflict:'user_id'});
-  if(!error)alert('Configurações salvas!');
-  else alert('Erro: '+error.message);
+  const {error}=await sb.from('empresa').upsert({user_id:user.id,nome:v('cfg-empresa'),cnpj:v('cfg-cnpj'),endereco:v('cfg-end'),cidade:v('cfg-cidade'),telefone:v('cfg-tel'),pagamento:v('cfg-pag')},{onConflict:'user_id'});
+  if(!error)alert('Configurações salvas!');else alert('Erro: '+error.message);
 }
-
 async function getEmpresa(){
   try{const {data}=await sb.from('empresa').select('*').eq('user_id',user.id).maybeSingle();return data||{};}
   catch(e){return{};}
 }
 
-// PDF DOCUMENTO
+// PDF
 async function gerarPDF(docId){
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',docId).single();
   if(!doc){alert('Documento não encontrado.');return;}
   const e=await getEmpresa();
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF();
+  const {jsPDF}=window.jspdf;const pdf=new jsPDF();
   const c=doc.clientes;const it=doc.itens||{};
 
   pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,18);
@@ -1048,11 +1105,7 @@ async function gerarPDF(docId){
   pdf.setDrawColor(200);pdf.line(20,38,190,38);
   pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
   pdf.text(doc.tipo==='OS'?'ORDEM DE SERVIÇO':doc.tipo==='ORC'?'ORÇAMENTO':'LAUDO TÉCNICO',105,45,{align:'center'});
-
-  if(doc.manutencao){
-    pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
-    pdf.text('Manutenção '+doc.manutencao.charAt(0).toUpperCase()+doc.manutencao.slice(1),105,51,{align:'center'});
-  }
+  if(doc.manutencao){pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);pdf.text('Manutenção '+doc.manutencao.charAt(0).toUpperCase()+doc.manutencao.slice(1),105,51,{align:'center'});}
 
   pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.text('Dados do Cliente',20,58);
   pdf.setFont('helvetica','normal');
@@ -1073,7 +1126,7 @@ async function gerarPDF(docId){
     pdf.line(20,y,190,y);y+=7;
     pdf.setFillColor(50,50,50);pdf.rect(20,y-4,170,7,'F');
     pdf.setTextColor(255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
-    pdf.text('Descrição',22,y);pdf.text('Valor',170,y,{align:'right'});
+    pdf.text('Descrição',22,y);pdf.text('Qtd',130,y);pdf.text('Valor',170,y,{align:'right'});
     pdf.setTextColor(0);y+=6;
     const sec=(lista,titulo)=>{
       if(!lista?.length)return;
@@ -1081,21 +1134,29 @@ async function gerarPDF(docId){
       pdf.setTextColor(0);pdf.setFont('helvetica','normal');
       lista.forEach((x,i)=>{
         if(i%2===0){pdf.setFillColor(248,248,248);pdf.rect(20,y-3.5,170,5.5,'F');}
-        pdf.text(x.desc,22,y);pdf.text('R$ '+x.val.toFixed(2),170,y,{align:'right'});y+=6;
+        pdf.text(x.desc,22,y);
+        pdf.text(String(x.qtd||1),132,y);
+        pdf.text('R$ '+(x.total||x.val||0).toFixed(2),170,y,{align:'right'});y+=6;
       });
     };
     sec(it.pecas,'Peças');sec(it.servs,'Serviços');sec(it.desps,'Despesas');
     pdf.line(20,y,190,y);y+=6;
+    const sub=doc.subtotal||doc.total||0;
+    const desc=doc.desconto||0;
     pdf.setFont('helvetica','normal');pdf.setFontSize(9);
-    pdf.text('Subtotal',130,y);pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=6;
+    pdf.text('Subtotal',130,y);pdf.text('R$ '+sub.toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=6;
+    if(desc>0){
+      pdf.setTextColor(200,50,50);
+      pdf.text(`Desconto ${desc}%`,130,y);pdf.text('− R$ '+(sub*(desc/100)).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=6;
+      pdf.setTextColor(0);
+    }
     pdf.setFont('helvetica','bold');pdf.setFontSize(10);
     pdf.text('Total',130,y);pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=8;
   }
   if(e.pagamento){
     pdf.line(20,y,190,y);y+=6;
     pdf.setFont('helvetica','bold');pdf.setFontSize(8);pdf.text('Condições de Pagamento',20,y);y+=5;
-    pdf.setFont('helvetica','normal');
-    const pl=pdf.splitTextToSize(e.pagamento,170);pdf.text(pl,20,y);
+    pdf.setFont('helvetica','normal');const pl=pdf.splitTextToSize(e.pagamento,170);pdf.text(pl,20,y);
   }
   pdf.setFontSize(8);pdf.setTextColor(150);
   pdf.text(e.nome||'PrestadorPro',105,280,{align:'center'});
@@ -1103,19 +1164,58 @@ async function gerarPDF(docId){
   pdf.save(`${doc.tipo}-${(c?.nome||'doc').replace(/ /g,'_')}-${doc.data}.pdf`);
 }
 
-// WHATSAPP
+async function gerarPDFChecklist(ckId){
+  const {data:ck}=await sb.from('checklists').select('*,clientes(*)').eq('id',ckId).single();
+  if(!ck)return;
+  const e=await getEmpresa();
+  const {jsPDF}=window.jspdf;const pdf=new jsPDF();let y=15;
+  pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,y);y+=6;
+  pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+  if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,y);y+=5;
+  if(e.telefone)pdf.text('Tel: '+e.telefone,20,y);y+=5;
+  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=7;
+  pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
+  pdf.text('CHECKLIST DE MANUTENÇÃO PREVENTIVA',105,y,{align:'center'});y+=8;
+  pdf.setFontSize(9);pdf.setFont('helvetica','normal');
+  [['Unidade',ck.unidade||'—'],['Endereço',ck.endereco||'—'],['Equipamento',ck.equipamento||'—'],['Nº Série',ck.numero_serie||'—'],['OS',ck.ordem_servico||'—'],['Data',fmtFull(ck.data)]].forEach(([k,vv])=>{
+    pdf.setFont('helvetica','bold');pdf.text(k+':',20,y);pdf.setFont('helvetica','normal');pdf.text(vv,60,y);y+=5;
+  });
+  y+=3;pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;
+  const itens=ck.itens||{};
+  CK_TEMPLATE.forEach(sec=>{
+    pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.setTextColor(249,115,22);
+    pdf.text(sec.secao.toUpperCase(),20,y);y+=5;pdf.setTextColor(0);
+    sec.itens.forEach(it=>{
+      if(y>265){pdf.addPage();y=20;}
+      const resp=itens[it.id]||'—';
+      const cor=resp==='ok'?[34,197,94]:resp==='ajuste'?[245,158,11]:resp==='reparo'?[239,68,68]:[150,150,150];
+      pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.text(it.label,22,y);
+      pdf.setTextColor(...cor);pdf.setFont('helvetica','bold');
+      pdf.text(resp==='ok'?'✓ OK':resp==='ajuste'?'⚠ Ajuste':resp==='reparo'?'✗ Reparo':'Não avaliado',160,y,{align:'right'});
+      pdf.setTextColor(0);y+=5;
+    });y+=3;
+  });
+  if(ck.observacoes){pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Observações',20,y);y+=5;pdf.setFont('helvetica','normal');const ol=pdf.splitTextToSize(ck.observacoes,170);pdf.text(ol,20,y);y+=ol.length*5+4;}
+  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=8;
+  pdf.setFont('helvetica','normal');pdf.setFontSize(9);
+  pdf.text('Técnico: '+(ck.tecnico||'—'),20,y);y+=5;
+  pdf.text('Data: '+fmtFull(ck.data),20,y);y+=10;
+  if(ck.assinatura){try{pdf.text('Assinatura:',20,y);y+=4;pdf.addImage(ck.assinatura,'PNG',20,y,80,30);y+=35;}catch(ex){}}
+  else{pdf.line(20,y,100,y);y+=5;pdf.setFontSize(8);pdf.setTextColor(150);pdf.text('Assinatura do técnico',20,y);}
+  pdf.setFontSize(8);pdf.setTextColor(150);pdf.text(e.nome||'PrestadorPro',105,285,{align:'center'});
+  pdf.save(`CHECKLIST-${(ck.clientes?.nome||'doc').replace(/ /g,'_')}-${ck.data}.pdf`);
+}
+
 async function enviarWpp(docId){
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',docId).single();
   if(!doc)return;
-  const c=doc.clientes;
-  const wpp=c?.whatsapp?.replace(/\D/g,'');
-  if(!wpp){alert('Cliente não tem WhatsApp cadastrado.');return;}
+  const c=doc.clientes;const wpp=c?.whatsapp?.replace(/\D/g,'');
+  if(!wpp){alert('Cliente não tem WhatsApp.');return;}
   const tipo=doc.tipo==='OS'?'ordem de serviço':doc.tipo==='ORC'?'orçamento':'laudo técnico';
   const msg=encodeURIComponent(`Olá ${c.nome}! Segue seu ${tipo} no valor de R$ ${(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}. Qualquer dúvida estou à disposição!`);
   window.open(`https://wa.me/55${wpp}?text=${msg}`,'_blank');
 }
 
-// UTILS
 function ini(nome){return(nome||'').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'--';}
 function fmt(d){if(!d)return'—';const[,m,day]=d.split('-');return`${day}/${m}`;}
 function fmtFull(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
