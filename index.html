@@ -47,10 +47,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .screen.active{display:flex}
 .card{background:#fff;border:1px solid #efefef;border-radius:14px;padding:14px}
 .card-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.metric{background:#fafafa;border-radius:10px;padding:10px 12px}
-.metric-label{font-size:11px;color:#aaa;margin-bottom:2px}
-.metric-val{font-size:20px;font-weight:600}
 .fg{display:flex;flex-direction:column;gap:12px}
 .fl{display:flex;flex-direction:column;gap:5px}
 .fl label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.04em}
@@ -97,11 +93,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .doc-btn-edit{color:#0ea5e9;border-color:#0ea5e9}
 .doc-btn-pdf{color:#f97316;border-color:#f97316}
 .doc-btn-wpp{color:#25d366;border-color:#25d366}
+/* STATUS BADGES */
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-top:3px}
+.badge-orcamento{background:#f0f9ff;color:#0369a1}
+.badge-aguardando{background:#fffbeb;color:#b45309}
+.badge-aprovado{background:#f0fdf4;color:#15803d}
+.badge-pago{background:#faf5ff;color:#7c3aed}
+/* DASHBOARD */
+.dash-filter{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dash-filter label{font-size:12px;color:#888;font-weight:500;white-space:nowrap}
+.dash-filter select{flex:1;padding:6px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;background:#fff;outline:none}
+.dash-filter select:focus{border-color:#f97316}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status-card{border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.status-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.status-card-count{font-size:22px;font-weight:700}
+.status-card-val{font-size:12px;font-weight:500;opacity:.8}
+.sc-orcamento{background:#f0f9ff;color:#0369a1}
+.sc-aguardando{background:#fffbeb;color:#b45309}
+.sc-aprovado{background:#f0fdf4;color:#15803d}
+.sc-pago{background:#faf5ff;color:#7c3aed}
 /* MODAL */
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:flex-end;justify-content:center}
 .modal-box{background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
 .modal-title{font-size:16px;font-weight:600}
-/* VIEW DOC */
+/* VIEW */
 .view-header{background:#f97316;color:#fff;padding:20px 16px}
 .view-empresa{font-size:16px;font-weight:600}
 .view-sub{font-size:12px;opacity:.85;margin-top:2px}
@@ -173,15 +189,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- MAIN APP -->
 <div class="main-app" id="main-app">
 
-  <!-- HOME -->
+  <!-- HOME / DASHBOARD -->
   <div class="screen active" id="s-home">
-    <div class="topbar"><h2>PrestadorPro</h2><span class="tb-act" onclick="go('s-config')">⚙️</span></div>
+    <div class="topbar"><h2>Dashboard</h2><span class="tb-act" onclick="go('s-config')">⚙️</span></div>
     <div class="content">
       <div class="notif" id="notif-hoje" style="display:none"><span style="font-size:18px">🔔</span><div class="notif-body" id="notif-txt"></div></div>
-      <div class="metric-row">
-        <div class="metric"><div class="metric-label">Clientes</div><div class="metric-val" id="m-cli">—</div></div>
-        <div class="metric"><div class="metric-label">Documentos</div><div class="metric-val" id="m-docs">—</div></div>
+
+      <!-- FILTRO -->
+      <div class="card">
+        <div class="dash-filter">
+          <label>Período</label>
+          <select id="dash-periodo" onchange="loadDashboard()">
+            <option value="30">Últimos 30 dias</option>
+            <option value="7">Últimos 7 dias</option>
+            <option value="90">Últimos 90 dias</option>
+            <option value="365">Este ano</option>
+            <option value="0">Todos</option>
+          </select>
+        </div>
+        <div class="status-grid" id="dash-cards">
+          <div class="loading" style="grid-column:span 2">Carregando...</div>
+        </div>
       </div>
+
+      <!-- AÇÕES RÁPIDAS -->
       <div class="card">
         <div class="card-title">Ações rápidas</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -191,6 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div onclick="go('s-checklist')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">✅</div><div style="font-size:13px">Checklist</div></div>
         </div>
       </div>
+
       <div class="card"><div class="card-title">Documentos recentes</div><div id="docs-home"><div class="loading">Carregando...</div></div></div>
     </div>
     <div class="nav">
@@ -223,7 +255,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card">
         <div class="fg">
           <div class="fl"><label>Cliente</label><select id="ag-cli"><option value="">Selecione...</option></select></div>
-          <div class="fl"><label>Unidade</label><select id="ag-unid"><option value="">Selecione ou deixe em branco</option></select></div>
+          <div class="fl"><label>Unidade</label><select id="ag-unid"><option value="">Nenhuma</option></select></div>
           <div class="fl"><label>Data</label><input type="date" id="ag-data"></div>
           <div class="fl"><label>Horário</label><input type="time" id="ag-hora"></div>
           <div class="fl"><label>Endereço (se diferente)</label><input type="text" id="ag-end" placeholder="Rua, número"></div>
@@ -237,11 +269,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- CLIENTES -->
   <div class="screen" id="s-clientes">
-    <div class="topbar"><h2>Clientes</h2><span class="tb-act" onclick="go('s-novo-cli')">＋</span></div>
+    <div class="topbar"><h2>Clientes</h2><span class="tb-act" onclick="abrirNovoCli()">＋</span></div>
     <div class="content">
       <div class="fl"><input type="text" id="busca-cli" placeholder="Buscar..." oninput="filtrarCli(this.value)"></div>
       <div class="card" style="padding:0 14px"><div id="cli-list"><div class="loading">Carregando...</div></div></div>
-      <button class="btn-full" onclick="go('s-novo-cli')">+ novo cliente</button>
     </div>
     <div class="nav">
       <div class="ni" onclick="goNav('s-home',this)"><span class="ni-icon">🏠</span><span class="ni-label">Início</span></div>
@@ -357,8 +388,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option value="corretiva">Corretiva</option>
             </select>
           </div>
+          <div class="fl" id="doc-status-field" style="display:none"><label>Status</label>
+            <select id="doc-status">
+              <option value="em_orcamento">Em orçamento</option>
+              <option value="aguardando">Aguardando aprovação</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="pago">Pago</option>
+            </select>
+          </div>
           <div class="fl"><label>Cliente</label><select id="doc-cli"><option value="">Selecione...</option></select></div>
-          <div class="fl"><label>Unidade</label><select id="doc-unid"><option value="">Selecione ou deixe em branco</option></select></div>
+          <div class="fl"><label>Unidade</label><select id="doc-unid"><option value="">Nenhuma</option></select></div>
           <div class="fl"><label>Data</label><input type="date" id="doc-data"></div>
           <div class="fl" id="doc-val-field" style="display:none"><label>Validade</label><input type="date" id="doc-validade"></div>
           <div class="fl"><label id="doc-desc-lbl">Serviço realizado</label><textarea rows="2" id="doc-desc" placeholder="Descreva..."></textarea></div>
@@ -398,6 +437,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="view-tipo" id="view-tipo">—</div>
         </div>
         <div style="padding:14px">
+          <div style="margin-bottom:12px" id="view-status-row"></div>
           <div class="view-section">
             <div class="view-section-title">Cliente</div>
             <div style="font-size:14px;font-weight:500" id="view-cli-nome">—</div>
@@ -424,6 +464,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
       </div>
+      <!-- ALTERAR STATUS RÁPIDO -->
+      <div class="card" id="view-status-card" style="display:none">
+        <div class="card-title">Alterar status</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="view-status-btns"></div>
+      </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-full" style="margin-top:0" onclick="gerarPDF(docAtual)">📄 PDF</button>
         <button class="btn-full" style="margin-top:0;background:#25d366;border:none" onclick="enviarWpp(docAtual)">💬 WPP</button>
@@ -442,8 +487,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="card-title">Identificação</div>
         <div class="fg">
           <div class="fl"><label>Cliente</label><select id="ck-cli"><option value="">Selecione...</option></select></div>
-          <div class="fl"><label>Unidade</label><select id="ck-unid"><option value="">Selecione ou deixe em branco</option></select></div>
-          <div class="fl"><label>Unidade / Local (manual)</label><input type="text" id="ck-unidade" placeholder="Ex.: Hospital Municipal"></div>
+          <div class="fl"><label>Unidade</label><select id="ck-unid"><option value="">Nenhuma</option></select></div>
+          <div class="fl"><label>Local (manual)</label><input type="text" id="ck-unidade" placeholder="Ex.: Hospital Municipal"></div>
           <div class="fl"><label>Endereço</label><input type="text" id="ck-end" placeholder="Rua, número, cidade"></div>
           <div class="fl"><label>Equipamento</label><input type="text" id="ck-equip" placeholder="Ex.: RaioX Fixo Siemens"></div>
           <div class="fl"><label>Número de série</label><input type="text" id="ck-serie" placeholder="Ex.: 927"></div>
@@ -506,8 +551,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <input type="hidden" id="modal-idx">
     <div class="fl"><label>Descrição</label><input type="text" id="modal-desc" placeholder="Ex.: Disjuntor 30A"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="fl"><label>Qtd</label><input type="number" id="modal-qtd" placeholder="1" min="1" step="1" value="1" oninput="calcModalSub()"></div>
-      <div class="fl"><label>Valor unitário (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0" oninput="calcModalSub()"></div>
+      <div class="fl"><label>Qtd</label><input type="number" id="modal-qtd" value="1" min="1" step="1" oninput="calcModalSub()"></div>
+      <div class="fl"><label>Valor unit. (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0" oninput="calcModalSub()"></div>
     </div>
     <div style="font-size:12px;color:#f97316;font-weight:500;text-align:right" id="modal-sub">Subtotal: R$ 0,00</div>
     <button class="btn-full" style="margin-top:0" onclick="confirmarItem()">salvar</button>
@@ -549,6 +594,13 @@ const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageK
 let user=null,clis=[],unids=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null,docAtual=null,editandoId=null,excluirFn=null;
 let ckRespostas={},sigCanvas,sigCtx,sigDrawing=false,sigLX=0,sigLY=0;
 
+const STATUS_MAP={
+  em_orcamento:{label:'Em orçamento',cls:'badge-orcamento',sc:'sc-orcamento'},
+  aguardando:{label:'Aguard. aprovação',cls:'badge-aguardando',sc:'sc-aguardando'},
+  aprovado:{label:'Aprovado',cls:'badge-aprovado',sc:'sc-aprovado'},
+  pago:{label:'Pago',cls:'badge-pago',sc:'sc-pago'}
+};
+
 const CK_TEMPLATE=[
   {secao:'Verificações Mecânicas e de Movimento',itens:[
     {id:'cabos',label:'Cabos de Aço',desc:'Inspecionar cabos da coluna porta-tubo e bucky mural.'},
@@ -576,17 +628,18 @@ sb.auth.onAuthStateChange((_,s)=>{
 
 function showEl(id){document.getElementById(id).style.display='flex';}
 function hideEl(id){document.getElementById(id).style.display='none';}
+function v(id){return document.getElementById(id)?.value||'';}
+function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function fecharModal(id){document.getElementById(id).style.display='none';}
 
 async function doLogin(){
-  const e=v('login-email'),p=v('login-pass'),err=document.getElementById('err-login');
-  err.style.display='none';
-  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  const err=document.getElementById('err-login');err.style.display='none';
+  const {error}=await sb.auth.signInWithPassword({email:v('login-email'),password:v('login-pass')});
   if(error){err.textContent='E-mail ou senha incorretos.';err.style.display='block';}
 }
 async function doRegister(){
-  const nome=v('reg-nome'),e=v('reg-email'),p=v('reg-pass'),err=document.getElementById('err-reg');
-  err.style.display='none';
-  const {error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:nome}}});
+  const err=document.getElementById('err-reg');err.style.display='none';
+  const {error}=await sb.auth.signUp({email:v('reg-email'),password:v('reg-pass'),options:{data:{full_name:v('reg-nome')}}});
   if(error){err.textContent=error.message;err.style.display='block';}
   else{err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada!';err.style.display='block';}
 }
@@ -608,6 +661,7 @@ async function initApp(){
   ['ag-data','doc-data','ck-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
   renderCkForm();initSig();
   await Promise.all([loadClis(),loadUnids(),loadDocs(),loadAgenda(),loadEmpresa(),loadChecklists()]);
+  await loadDashboard();
 }
 
 function go(id){
@@ -618,15 +672,37 @@ function goNav(id,el){
   go(id);document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
 }
-function fecharModal(id){document.getElementById(id).style.display='none';}
-function v(id){return document.getElementById(id)?.value||'';}
-function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+// DASHBOARD
+async function loadDashboard(){
+  const dias=parseInt(v('dash-periodo'))||30;
+  let query=sb.from('documentos').select('*').eq('user_id',user.id);
+  if(dias>0){
+    const desde=new Date();desde.setDate(desde.getDate()-dias);
+    query=query.gte('data',desde.toISOString().split('T')[0]);
+  }
+  const {data}=await query;
+  const docs=data||[];
+  const stats={em_orcamento:{count:0,val:0},aguardando:{count:0,val:0},aprovado:{count:0,val:0},pago:{count:0,val:0}};
+  docs.forEach(d=>{
+    const s=d.status||'em_orcamento';
+    if(stats[s]){stats[s].count++;stats[s].val+=(d.total||0);}
+  });
+  const el=document.getElementById('dash-cards');
+  el.innerHTML=Object.entries(stats).map(([key,st])=>{
+    const m=STATUS_MAP[key];
+    return`<div class="status-card ${m.sc}">
+      <div class="status-card-label">${m.label}</div>
+      <div class="status-card-count">${st.count}</div>
+      <div class="status-card-val">R$ ${st.val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+    </div>`;
+  }).join('');
+}
 
 // CLIENTES
 async function loadClis(){
   const {data}=await sb.from('clientes').select('*').eq('user_id',user.id).order('nome');
   clis=data||[];renderClis(clis);updateSelects();
-  document.getElementById('m-cli').textContent=clis.length;
 }
 function renderClis(lista){
   const el=document.getElementById('cli-list');
@@ -635,8 +711,7 @@ function renderClis(lista){
     <div class="li">
       <div class="li-av" onclick="verCli('${c.id}')" style="cursor:pointer">${ini(c.nome)}</div>
       <div class="li-body" onclick="verCli('${c.id}')" style="cursor:pointer">
-        <div class="li-name">${c.nome}</div>
-        <div class="li-sub">${c.whatsapp||''}</div>
+        <div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div>
       </div>
       <div class="li-actions">
         <span class="li-btn li-btn-edit" onclick="editarCli('${c.id}')">✏️</span>
@@ -651,7 +726,7 @@ function updateSelects(){
   const uOpts=unids.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('');
   ['ag-unid','doc-unid','ck-unid'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Nenhuma</option>'+uOpts;});
 }
-function novoCliForm(){
+function abrirNovoCli(){
   document.getElementById('nc-id').value='';
   document.getElementById('cli-form-title').textContent='Novo cliente';
   ['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');
@@ -672,17 +747,11 @@ async function salvarCli(){
   const nome=v('nc-nome').trim();if(!nome){alert('Nome obrigatório.');return;}
   const id=v('nc-id');
   const payload={user_id:user.id,nome,whatsapp:v('nc-wpp'),endereco:v('nc-end'),cidade:v('nc-cidade'),observacoes:v('nc-obs')};
-  let error;
-  if(id){({error}=await sb.from('clientes').update(payload).eq('id',id));}
-  else{({error}=await sb.from('clientes').insert(payload));}
-  if(!error){await loadClis();go('s-clientes');}
-  else alert('Erro: '+error.message);
+  const {error}=id?await sb.from('clientes').update(payload).eq('id',id):await sb.from('clientes').insert(payload);
+  if(!error){await loadClis();go('s-clientes');}else alert('Erro: '+error.message);
 }
 function confirmarExcluirCli(id){
-  excluirFn=async()=>{
-    await sb.from('clientes').delete().eq('id',id);
-    await loadClis();fecharModal('modal-excluir');go('s-clientes');
-  };
+  excluirFn=async()=>{await sb.from('clientes').delete().eq('id',id);await loadClis();fecharModal('modal-excluir');go('s-clientes');};
   document.getElementById('modal-excluir').style.display='flex';
 }
 async function verCli(id){
@@ -714,10 +783,7 @@ function renderUnids(lista){
   el.innerHTML=lista.map(u=>`
     <div class="li">
       <div class="li-av" style="font-size:16px">🏢</div>
-      <div class="li-body">
-        <div class="li-name">${u.nome}</div>
-        <div class="li-sub">${[u.endereco,u.cidade].filter(Boolean).join(', ')||''}</div>
-      </div>
+      <div class="li-body"><div class="li-name">${u.nome}</div><div class="li-sub">${[u.endereco,u.cidade].filter(Boolean).join(', ')||''}</div></div>
       <div class="li-actions">
         <span class="li-btn li-btn-edit" onclick="editarUnidade('${u.id}')">✏️</span>
         <span class="li-btn li-btn-del" onclick="excluirUnidade('${u.id}')">🗑️</span>
@@ -745,17 +811,11 @@ async function salvarUnidade(){
   const nome=v('mu-nome').trim();if(!nome){alert('Nome obrigatório.');return;}
   const id=v('mu-id');
   const payload={user_id:user.id,nome,endereco:v('mu-end'),cidade:v('mu-cidade'),contato:v('mu-contato')};
-  let error;
-  if(id){({error}=await sb.from('unidades').update(payload).eq('id',id));}
-  else{({error}=await sb.from('unidades').insert(payload));}
-  if(!error){fecharModal('modal-unidade');await loadUnids();}
-  else alert('Erro: '+error.message);
+  const {error}=id?await sb.from('unidades').update(payload).eq('id',id):await sb.from('unidades').insert(payload);
+  if(!error){fecharModal('modal-unidade');await loadUnids();}else alert('Erro: '+error.message);
 }
 function excluirUnidade(id){
-  excluirFn=async()=>{
-    await sb.from('unidades').delete().eq('id',id);
-    await loadUnids();fecharModal('modal-excluir');
-  };
+  excluirFn=async()=>{await sb.from('unidades').delete().eq('id',id);await loadUnids();fecharModal('modal-excluir');};
   document.getElementById('modal-excluir').style.display='flex';
 }
 async function excluirAtual(){if(excluirFn)await excluirFn();}
@@ -764,10 +824,10 @@ async function excluirAtual(){if(excluirFn)await excluirFn();}
 async function loadDocs(){
   const {data}=await sb.from('documentos').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
-  document.getElementById('m-docs').textContent=docs.length;
   document.getElementById('docs-home').innerHTML=renderDocs(docs.slice(0,5));
   document.getElementById('docs-all').innerHTML=renderDocs(docs);
 }
+function statusBadge(s){const m=STATUS_MAP[s||'em_orcamento'];return`<span class="badge ${m.cls}">${m.label}</span>`;}
 function renderDocs(lista){
   if(!lista.length)return'<div class="empty">Nenhum documento ainda.</div>';
   return lista.map(d=>`
@@ -776,11 +836,12 @@ function renderDocs(lista){
       <div class="li-body">
         <div class="li-name">${d.clientes?.nome||'—'}</div>
         <div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        ${d.tipo==='ORC'?statusBadge(d.status):''}
         <div class="doc-actions">
           <span class="doc-btn doc-btn-view" onclick="event.stopPropagation();verDoc('${d.id}')">👁 Ver</span>
-          <span class="doc-btn doc-btn-edit" onclick="event.stopPropagation();editarDoc('${d.id}')">✏️ Editar</span>
-          <span class="doc-btn doc-btn-pdf" onclick="event.stopPropagation();gerarPDF('${d.id}')">📄 PDF</span>
-          <span class="doc-btn doc-btn-wpp" onclick="event.stopPropagation();enviarWpp('${d.id}')">💬 WPP</span>
+          <span class="doc-btn doc-btn-edit" onclick="event.stopPropagation();editarDoc('${d.id}')">✏️</span>
+          <span class="doc-btn doc-btn-pdf" onclick="event.stopPropagation();gerarPDF('${d.id}')">📄</span>
+          <span class="doc-btn doc-btn-wpp" onclick="event.stopPropagation();enviarWpp('${d.id}')">💬</span>
         </div>
       </div>
       <div class="li-r">${fmt(d.data)}</div>
@@ -793,6 +854,7 @@ function iniciarDoc(tipo){
   document.getElementById('doc-manut').value='';
   document.getElementById('doc-desconto').value='0';
   document.getElementById('doc-desconto-val').textContent='';
+  document.getElementById('doc-status').value='em_orcamento';
   onTipoChange();go('s-novo-doc');
 }
 async function editarDoc(id){
@@ -800,14 +862,13 @@ async function editarDoc(id){
   if(!doc)return;
   editandoId=id;
   docItens=doc.itens||{pecas:[],servs:[],desps:[]};
-  if(!docItens.pecas)docItens.pecas=[];
-  if(!docItens.servs)docItens.servs=[];
-  if(!docItens.desps)docItens.desps=[];
+  ['pecas','servs','desps'].forEach(k=>{if(!docItens[k])docItens[k]=[];});
   document.getElementById('doc-tipo').value=doc.tipo;
   document.getElementById('doc-desc').value=doc.descricao||'';
   document.getElementById('doc-data').value=doc.data||'';
   document.getElementById('doc-manut').value=doc.manutencao||'';
   document.getElementById('doc-desconto').value=doc.desconto||0;
+  document.getElementById('doc-status').value=doc.status||'em_orcamento';
   await loadClis();await loadUnids();
   document.getElementById('doc-cli').value=doc.cliente_id||'';
   document.getElementById('doc-unid').value=doc.unidade_id||'';
@@ -822,6 +883,7 @@ function onTipoChange(){
   document.getElementById('doc-val-field').style.display=t==='ORC'?'flex':'none';
   document.getElementById('doc-itens-card').style.display=t==='LAUDO'?'none':'block';
   document.getElementById('doc-manut-field').style.display=t==='OS'?'flex':'none';
+  document.getElementById('doc-status-field').style.display=t==='ORC'?'flex':'none';
 }
 function addItem(tipo,idx){
   document.getElementById('modal-tipo').value=tipo;
@@ -833,7 +895,7 @@ function addItem(tipo,idx){
     document.getElementById('modal-qtd').value=it.qtd||1;
     document.getElementById('modal-val').value=it.val;
     calcModalSub();
-  } else {
+  }else{
     document.getElementById('modal-idx').value='';
     document.getElementById('modal-item-title').textContent='Adicionar item';
     document.getElementById('modal-desc').value='';
@@ -854,8 +916,7 @@ function confirmarItem(){
   if(!desc){alert('Descrição obrigatória.');return;}
   const idx=v('modal-idx');
   const item={desc,qtd,val,total:qtd*val};
-  if(idx!==''){docItens[tipo][parseInt(idx)]=item;}
-  else{docItens[tipo].push(item);}
+  if(idx!==''){docItens[tipo][parseInt(idx)]=item;}else{docItens[tipo].push(item);}
   renderItens();fecharModal('modal-item');
 }
 function renderItens(){
@@ -864,7 +925,8 @@ function renderItens(){
     el.innerHTML=(docItens[t]||[]).map((it,i)=>`
       <div class="line-item" onclick="addItem('${t}',${i})">
         <span class="ld">${it.desc}${it.qtd>1?` <span style="font-size:11px;color:#aaa">× ${it.qtd}</span>`:''}
-        <span style="font-size:11px;color:#aaa;display:block">R$ ${it.val.toFixed(2)} un.</span></span>
+          <span style="font-size:11px;color:#aaa;display:block">R$ ${it.val.toFixed(2)} un.</span>
+        </span>
         <span class="lv">R$ ${(it.total||it.val||0).toFixed(2)}</span>
         <span class="ldel" onclick="event.stopPropagation();delItem('${t}',${i})">×</span>
       </div>`).join('');
@@ -889,11 +951,9 @@ async function salvarDoc(){
   const all=[...(docItens.pecas||[]),...(docItens.servs||[]),...(docItens.desps||[])];
   const sub=all.reduce((s,it)=>s+(it.total||it.val||0),0);
   const desc=parseFloat(v('doc-desconto'))||0;
-  const payload={user_id:user.id,cliente_id:cliId,unidade_id:v('doc-unid')||null,tipo,data:v('doc-data'),descricao:v('doc-desc'),total,desconto:desc,subtotal:sub,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:v('doc-manut')||null};
-  let error;
-  if(editandoId){({error}=await sb.from('documentos').update(payload).eq('id',editandoId));}
-  else{({error}=await sb.from('documentos').insert(payload));}
-  if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert(editandoId?'Atualizado!':'Salvo!');go('s-docs');}
+  const payload={user_id:user.id,cliente_id:cliId,unidade_id:v('doc-unid')||null,tipo,data:v('doc-data'),descricao:v('doc-desc'),total,desconto:desc,subtotal:sub,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:v('doc-manut')||null,status:tipo==='ORC'?v('doc-status'):'em_orcamento'};
+  const {error}=editandoId?await sb.from('documentos').update(payload).eq('id',editandoId):await sb.from('documentos').insert(payload);
+  if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();await loadDashboard();alert('Salvo!');go('s-docs');}
   else alert('Erro: '+error.message);
 }
 async function verDoc(id){
@@ -904,14 +964,25 @@ async function verDoc(id){
   set('view-empresa',e.nome||'Empresa');
   set('view-empresa-info',[e.cnpj,e.telefone].filter(Boolean).join(' · ')||'');
   set('view-tipo',doc.tipo==='OS'?'Ordem de Serviço':doc.tipo==='ORC'?'Orçamento':'Laudo Técnico');
-  set('view-cli-nome',c?.nome||'—');
-  set('view-cli-wpp',c?.whatsapp||'');
+  set('view-cli-nome',c?.nome||'—');set('view-cli-wpp',c?.whatsapp||'');
   set('view-cli-end',[c?.endereco,c?.cidade].filter(Boolean).join(', ')||'');
   set('view-data',fmtFull(doc.data));
   document.getElementById('view-desc').textContent=doc.descricao||'—';
   const badge=document.getElementById('view-manut-badge');
   if(doc.manutencao)badge.innerHTML=`<span class="badge-manut ${doc.manutencao==='preventiva'?'badge-prev':'badge-corr'}">${doc.manutencao==='preventiva'?'Preventiva':'Corretiva'}</span>`;
   else badge.innerHTML='';
+
+  // status
+  const sr=document.getElementById('view-status-row');
+  const sc=document.getElementById('view-status-card');
+  if(doc.tipo==='ORC'){
+    sr.innerHTML=statusBadge(doc.status);
+    sc.style.display='block';
+    const btns=document.getElementById('view-status-btns');
+    btns.innerHTML=Object.entries(STATUS_MAP).map(([key,m])=>`
+      <button onclick="alterarStatus('${id}','${key}')" style="padding:8px;border-radius:8px;border:1px solid;cursor:pointer;font-size:12px;font-weight:500;background:${doc.status===key?'#f97316':'#fafafa'};color:${doc.status===key?'#fff':'#444'};border-color:${doc.status===key?'#f97316':'#e5e5e5'}">${m.label}</button>`).join('');
+  }else{sr.innerHTML='';sc.style.display='none';}
+
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
   if(all.length){
     document.getElementById('view-itens-section').style.display='block';
@@ -926,11 +997,12 @@ async function verDoc(id){
   else document.getElementById('view-pag-section').style.display='none';
   go('s-view-doc');
 }
+async function alterarStatus(id,status){
+  await sb.from('documentos').update({status}).eq('id',id);
+  await loadDocs();await loadDashboard();verDoc(id);
+}
 function confirmarExcluir(id){
-  excluirFn=async()=>{
-    await sb.from('documentos').delete().eq('id',id);
-    fecharModal('modal-excluir');await loadDocs();go('s-docs');
-  };
+  excluirFn=async()=>{await sb.from('documentos').delete().eq('id',id);fecharModal('modal-excluir');await loadDocs();await loadDashboard();go('s-docs');};
   document.getElementById('modal-excluir').style.display='flex';
 }
 
@@ -977,9 +1049,9 @@ function renderCkForm(){
 }
 function selOpt(id,val){
   ckRespostas[id]=val;
-  ['ok','ajuste','reparo'].forEach(v=>{
-    const el=document.getElementById(`opt-${id}-${v}`);if(!el)return;
-    el.className=`ck-opt ${v}`;if(v===val)el.classList.add(`selected-${v}`);
+  ['ok','ajuste','reparo'].forEach(vv=>{
+    const el=document.getElementById(`opt-${id}-${vv}`);if(!el)return;
+    el.className=`ck-opt ${vv}`;if(vv===val)el.classList.add(`selected-${vv}`);
   });
 }
 function initSig(){
@@ -1011,11 +1083,8 @@ async function salvarChecklist(){
   let unidEnd=v('ck-end');
   if(!unidEnd&&unidId){const u=unids.find(x=>x.id===unidId);if(u)unidEnd=[u.endereco,u.cidade].filter(Boolean).join(', ');}
   const payload={user_id:user.id,cliente_id:cliId,unidade_id:unidId||null,unidade:unidNome,endereco:unidEnd,equipamento:v('ck-equip'),numero_serie:v('ck-serie'),ordem_servico:v('ck-os'),tecnico:v('ck-tecnico'),data:v('ck-data'),itens:ckRespostas,observacoes:v('ck-obs'),assinatura:getSig()};
-  let error;
-  if(ckId){({error}=await sb.from('checklists').update(payload).eq('id',ckId));}
-  else{({error}=await sb.from('checklists').insert(payload));}
-  if(!error){await loadChecklists();alert('Checklist salvo!');go('s-docs');}
-  else alert('Erro: '+error.message);
+  const {error}=ckId?await sb.from('checklists').update(payload).eq('id',ckId):await sb.from('checklists').insert(payload);
+  if(!error){await loadChecklists();alert('Checklist salvo!');go('s-docs');}else alert('Erro: '+error.message);
 }
 async function loadChecklists(){
   const {data}=await sb.from('checklists').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(10);
@@ -1058,10 +1127,7 @@ async function editarChecklist(id){
   go('s-checklist');
 }
 function excluirChecklist(id){
-  excluirFn=async()=>{
-    await sb.from('checklists').delete().eq('id',id);
-    await loadChecklists();fecharModal('modal-excluir');
-  };
+  excluirFn=async()=>{await sb.from('checklists').delete().eq('id',id);await loadChecklists();fecharModal('modal-excluir');};
   document.getElementById('modal-excluir').style.display='flex';
 }
 
@@ -1070,12 +1136,10 @@ async function loadEmpresa(){
   try{
     const {data}=await sb.from('empresa').select('*').eq('user_id',user.id).maybeSingle();
     if(!data)return;
-    document.getElementById('cfg-empresa').value=data.nome||'';
-    document.getElementById('cfg-cnpj').value=data.cnpj||'';
-    document.getElementById('cfg-end').value=data.endereco||'';
-    document.getElementById('cfg-cidade').value=data.cidade||'';
-    document.getElementById('cfg-tel').value=data.telefone||'';
-    document.getElementById('cfg-pag').value=data.pagamento||'';
+    ['empresa','cnpj','end','cidade','tel','pag'].forEach(k=>{
+      const el=document.getElementById('cfg-'+k);
+      if(el)el.value=data[k==='end'?'endereco':k==='tel'?'telefone':k==='pag'?'pagamento':k]||'';
+    });
   }catch(e){}
 }
 async function salvarEmpresa(){
@@ -1094,33 +1158,33 @@ async function gerarPDF(docId){
   const e=await getEmpresa();
   const {jsPDF}=window.jspdf;const pdf=new jsPDF();
   const c=doc.clientes;const it=doc.itens||{};
-
   pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,18);
   pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
   if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,24);
   if(e.endereco)pdf.text(e.endereco,20,29);
   if(e.cidade)pdf.text(e.cidade,20,34);
   if(e.telefone)pdf.text('Tel: '+e.telefone,150,24);
-
   pdf.setDrawColor(200);pdf.line(20,38,190,38);
   pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
   pdf.text(doc.tipo==='OS'?'ORDEM DE SERVIÇO':doc.tipo==='ORC'?'ORÇAMENTO':'LAUDO TÉCNICO',105,45,{align:'center'});
-  if(doc.manutencao){pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);pdf.text('Manutenção '+doc.manutencao.charAt(0).toUpperCase()+doc.manutencao.slice(1),105,51,{align:'center'});}
-
-  pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.text('Dados do Cliente',20,58);
+  if(doc.tipo==='ORC'&&doc.status){
+    const sm=STATUS_MAP[doc.status];
+    pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+    pdf.text('Status: '+sm.label,105,51,{align:'center'});
+  }
+  if(doc.manutencao){pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);pdf.text('Manutenção '+doc.manutencao.charAt(0).toUpperCase()+doc.manutencao.slice(1),105,57,{align:'center'});}
+  pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.text('Dados do Cliente',20,64);
   pdf.setFont('helvetica','normal');
-  pdf.text(c?.nome||'—',20,64);
-  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,69);
-  if(c?.endereco)pdf.text(c.endereco,20,74);
-  pdf.setFont('helvetica','bold');pdf.text('Data: '+fmtFull(doc.data),150,64);
-
-  pdf.setDrawColor(200);pdf.line(20,79,190,79);
-  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,86);
+  pdf.text(c?.nome||'—',20,70);
+  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,75);
+  if(c?.endereco)pdf.text(c.endereco,20,80);
+  pdf.setFont('helvetica','bold');pdf.text('Data: '+fmtFull(doc.data),150,70);
+  pdf.setDrawColor(200);pdf.line(20,85,190,85);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,92);
   pdf.setFont('helvetica','normal');
   const descLinhas=(doc.descricao||'—').split('\n').flatMap(l=>pdf.splitTextToSize(l||' ',170));
-  pdf.text(descLinhas,20,92);
-  let y=92+(descLinhas.length*5)+6;
-
+  pdf.text(descLinhas,20,98);
+  let y=98+(descLinhas.length*5)+6;
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
   if(all.length){
     pdf.line(20,y,190,y);y+=7;
@@ -1134,15 +1198,13 @@ async function gerarPDF(docId){
       pdf.setTextColor(0);pdf.setFont('helvetica','normal');
       lista.forEach((x,i)=>{
         if(i%2===0){pdf.setFillColor(248,248,248);pdf.rect(20,y-3.5,170,5.5,'F');}
-        pdf.text(x.desc,22,y);
-        pdf.text(String(x.qtd||1),132,y);
+        pdf.text(x.desc,22,y);pdf.text(String(x.qtd||1),132,y);
         pdf.text('R$ '+(x.total||x.val||0).toFixed(2),170,y,{align:'right'});y+=6;
       });
     };
     sec(it.pecas,'Peças');sec(it.servs,'Serviços');sec(it.desps,'Despesas');
     pdf.line(20,y,190,y);y+=6;
-    const sub=doc.subtotal||doc.total||0;
-    const desc=doc.desconto||0;
+    const sub=doc.subtotal||doc.total||0;const desc=doc.desconto||0;
     pdf.setFont('helvetica','normal');pdf.setFontSize(9);
     pdf.text('Subtotal',130,y);pdf.text('R$ '+sub.toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=6;
     if(desc>0){
@@ -1200,7 +1262,7 @@ async function gerarPDFChecklist(ckId){
   pdf.setFont('helvetica','normal');pdf.setFontSize(9);
   pdf.text('Técnico: '+(ck.tecnico||'—'),20,y);y+=5;
   pdf.text('Data: '+fmtFull(ck.data),20,y);y+=10;
-  if(ck.assinatura){try{pdf.text('Assinatura:',20,y);y+=4;pdf.addImage(ck.assinatura,'PNG',20,y,80,30);y+=35;}catch(ex){}}
+  if(ck.assinatura){try{pdf.text('Assinatura:',20,y);y+=4;pdf.addImage(ck.assinatura,'PNG',20,y,80,30);}catch(ex){}}
   else{pdf.line(20,y,100,y);y+=5;pdf.setFontSize(8);pdf.setTextColor(150);pdf.text('Assinatura do técnico',20,y);}
   pdf.setFontSize(8);pdf.setTextColor(150);pdf.text(e.nome||'PrestadorPro',105,285,{align:'center'});
   pdf.save(`CHECKLIST-${(ck.clientes?.nome||'doc').replace(/ /g,'_')}-${ck.data}.pdf`);
