@@ -1064,8 +1064,9 @@ async function gerarPDF(docId){
   pdf.setDrawColor(200);pdf.line(20,79,190,79);
   pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,86);
   pdf.setFont('helvetica','normal');
-  const dl=pdf.splitTextToSize(doc.descricao||'—',170);pdf.text(dl,20,92);
-  let y=92+(dl.length*5)+6;
+  const descLinhas=(doc.descricao||'—').split('\n').flatMap(l=>pdf.splitTextToSize(l||' ',170));
+  pdf.text(descLinhas,20,92);
+  let y=92+(descLinhas.length*5)+6;
 
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
   if(all.length){
