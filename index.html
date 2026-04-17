@@ -11,8 +11,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
 .app{width:100%;max-width:420px;min-height:100vh;background:#fff;display:flex;flex-direction:column}
 .auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:32px 24px;gap:24px}
-.logo{font-size:28px;font-weight:700;color:#1a1a1a}
-.logo span{color:#f97316}
+.logo{font-size:28px;font-weight:700;color:#1a1a1a}.logo span{color:#f97316}
 .auth-card{width:100%;border:1px solid #e5e5e5;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
 .auth-title{font-size:18px;font-weight:600;text-align:center}
 .auth-sub{font-size:13px;color:#888;text-align:center;margin-top:-8px}
@@ -54,6 +53,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fl textarea{resize:none;line-height:1.5}
 .btn-full{width:100%;padding:13px;background:#f97316;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px}
 .btn-sec{width:100%;padding:11px;background:#fafafa;color:#1a1a1a;border:1px solid #e5e5e5;border-radius:12px;font-size:14px;cursor:pointer;margin-top:4px}
+.btn-danger{width:100%;padding:11px;background:#fff5f5;color:#e53e3e;border:1px solid #fecaca;border-radius:12px;font-size:14px;cursor:pointer;margin-top:4px}
 .add-btn{font-size:13px;color:#f97316;cursor:pointer;padding:6px 0;display:inline-block;font-weight:500}
 .li{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f5f5f5}
 .li:last-child{border-bottom:none}
@@ -77,10 +77,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sec-div{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;padding:4px 0;border-bottom:1px solid #f0f0f0;margin-bottom:4px}
 .user-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f5f5f5}
 .user-av{width:44px;height:44px;border-radius:50%;background:#fff3e8;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#f97316}
-.doc-actions{display:flex;gap:6px;margin-top:5px}
+.doc-actions{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
 .doc-btn{font-size:11px;font-weight:500;padding:2px 10px;border-radius:20px;cursor:pointer;border:1px solid}
+.doc-btn-view{color:#6366f1;border-color:#6366f1}
+.doc-btn-edit{color:#0ea5e9;border-color:#0ea5e9}
 .doc-btn-pdf{color:#f97316;border-color:#f97316}
 .doc-btn-wpp{color:#25d366;border-color:#25d366}
+.doc-btn-del{color:#e53e3e;border-color:#fecaca}
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:24px}
+.modal-box{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.modal-title{font-size:16px;font-weight:600}
+/* VISUALIZAÇÃO */
+.view-header{background:#f97316;color:#fff;padding:20px 16px}
+.view-empresa{font-size:16px;font-weight:600}
+.view-sub{font-size:12px;opacity:0.85;margin-top:2px}
+.view-tipo{font-size:11px;background:rgba(255,255,255,0.2);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:6px}
+.view-section{margin-bottom:12px}
+.view-section-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.view-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.view-row:last-child{border-bottom:none}
+.view-total{display:flex;justify-content:space-between;padding:10px 0 0;font-size:16px;font-weight:600}
+.badge-manut{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;font-weight:500}
+.badge-prev{background:#e0f2fe;color:#0369a1}
+.badge-corr{background:#fee2e2;color:#b91c1c}
 </style>
 </head>
 <body>
@@ -269,7 +289,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- NOVO DOC -->
+  <!-- NOVO / EDITAR DOC -->
   <div class="screen" id="s-novo-doc">
     <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2 id="doc-title">Novo documento</h2></div>
     <div class="content">
@@ -280,6 +300,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option value="OS">Ordem de Serviço</option>
               <option value="ORC">Orçamento</option>
               <option value="LAUDO">Laudo Técnico</option>
+            </select>
+          </div>
+          <div class="fl" id="doc-manut-field" style="display:none"><label>Tipo de manutenção</label>
+            <select id="doc-manut">
+              <option value="">Não se aplica</option>
+              <option value="preventiva">Preventiva</option>
+              <option value="corretiva">Corretiva</option>
             </select>
           </div>
           <div class="fl"><label>Cliente</label><select id="doc-cli"><option value="">Selecione...</option></select></div>
@@ -302,6 +329,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <button class="btn-full" onclick="salvarDoc()">salvar documento</button>
       <button class="btn-sec" onclick="go('s-docs')">cancelar</button>
+    </div>
+  </div>
+
+  <!-- VISUALIZAR DOC -->
+  <div class="screen" id="s-view-doc">
+    <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2>Documento</h2></div>
+    <div class="content">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="view-header">
+          <div class="view-empresa" id="view-empresa">—</div>
+          <div class="view-sub" id="view-empresa-info">—</div>
+          <div class="view-tipo" id="view-tipo">—</div>
+        </div>
+        <div style="padding:14px">
+          <div class="view-section">
+            <div class="view-section-title">Cliente</div>
+            <div style="font-size:14px;font-weight:500" id="view-cli-nome">—</div>
+            <div style="font-size:12px;color:#aaa;margin-top:2px" id="view-cli-wpp">—</div>
+            <div style="font-size:12px;color:#aaa" id="view-cli-end">—</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <div><div style="font-size:11px;color:#aaa">Data</div><div style="font-size:13px;font-weight:500" id="view-data">—</div></div>
+            <div id="view-manut-badge"></div>
+          </div>
+          <div class="view-section">
+            <div class="view-section-title">Descrição</div>
+            <div style="font-size:13px;line-height:1.6;color:#444" id="view-desc">—</div>
+          </div>
+          <div class="view-section" id="view-itens-section">
+            <div class="view-section-title">Itens</div>
+            <div id="view-itens"></div>
+            <div class="view-total"><span>Total</span><span id="view-total">R$ 0,00</span></div>
+          </div>
+          <div class="view-section" id="view-pag-section" style="display:none">
+            <div class="view-section-title">Condições de pagamento</div>
+            <div style="font-size:13px;color:#444" id="view-pag">—</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-full" style="margin-top:0" onclick="gerarPDF(docAtual)">📄 Gerar PDF</button>
+        <button class="btn-full" style="margin-top:0;background:#25d366;border:none" onclick="enviarWpp(docAtual)">💬 WhatsApp</button>
+      </div>
+      <button class="btn-sec" onclick="editarDoc(docAtual)">✏️ Editar documento</button>
+      <button class="btn-danger" onclick="confirmarExcluir(docAtual)">🗑️ Excluir documento</button>
     </div>
   </div>
 
@@ -331,18 +403,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn-sec" style="margin-top:4px;color:#e53e3e;border-color:#fecaca" onclick="doLogout()">Sair da conta</button>
     </div>
   </div>
+
+</div><!-- /main-app -->
+
 <!-- MODAL ITEM -->
-<div id="modal-item" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:24px">
-  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px">
-    <div style="font-size:16px;font-weight:600">Adicionar item</div>
+<div class="modal-bg" id="modal-item">
+  <div class="modal-box">
+    <div class="modal-title">Adicionar item</div>
     <input type="hidden" id="modal-tipo">
     <div class="fl"><label>Descrição</label><input type="text" id="modal-desc" placeholder="Ex.: Disjuntor 30A"></div>
     <div class="fl"><label>Valor (R$)</label><input type="number" id="modal-val" placeholder="0,00" step="0.01" min="0"></div>
     <button class="btn-full" onclick="confirmarItem()">adicionar</button>
-    <button class="btn-sec" onclick="fecharModal()">cancelar</button>
+    <button class="btn-sec" onclick="fecharModal('modal-item')">cancelar</button>
   </div>
 </div>
-</div><!-- /main-app -->
+
+<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<div class="modal-bg" id="modal-excluir">
+  <div class="modal-box">
+    <div class="modal-title">Excluir documento</div>
+    <div style="font-size:14px;color:#666">Tem certeza? Esta ação não pode ser desfeita.</div>
+    <button class="btn-danger" style="margin-top:0" onclick="excluirDoc()">sim, excluir</button>
+    <button class="btn-sec" onclick="fecharModal('modal-excluir')">cancelar</button>
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <script>
@@ -350,15 +435,15 @@ const SB_URL='https://lqebrbpwarmpubukppcs.supabase.co';
 const SB_KEY='sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let user=null,clis=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null;
+let user=null,clis=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null,docAtual=null,editandoId=null;
 
 sb.auth.onAuthStateChange((_,s)=>{
   if(s){user=s.user;initApp();}
-  else{user=null;show('auth-screen');hide('main-app');}
+  else{user=null;showEl('auth-screen');hideEl('main-app');}
 });
 
-function show(id){document.getElementById(id).style.display='flex';}
-function hide(id){document.getElementById(id).style.display='none';}
+function showEl(id){document.getElementById(id).style.display='flex';}
+function hideEl(id){document.getElementById(id).style.display='none';}
 
 async function doLogin(){
   const e=document.getElementById('login-email').value;
@@ -380,10 +465,7 @@ async function doRegister(){
   else{err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada! Pode fazer login agora.';err.style.display='block';}
 }
 
-async function doGoogle(){
-  await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
-}
-
+async function doGoogle(){await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});}
 async function doLogout(){await sb.auth.signOut();}
 
 function toggleAuth(){
@@ -393,11 +475,11 @@ function toggleAuth(){
 }
 
 async function initApp(){
-  hide('auth-screen');show('main-app');
+  hideEl('auth-screen');showEl('main-app');
   const m=user.user_metadata||{};
   const nome=m.full_name||m.name||user.email.split('@')[0];
-  const ini=nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
-  document.getElementById('cfg-av').textContent=ini;
+  const in2=nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('cfg-av').textContent=in2;
   document.getElementById('cfg-nome').textContent=nome;
   document.getElementById('cfg-email').textContent=user.email;
   const t=new Date().toISOString().split('T')[0];
@@ -417,24 +499,20 @@ function goNav(id,el){
   if(el)el.classList.add('active');
 }
 
+function fecharModal(id){document.getElementById(id).style.display='none';}
+
 // CLIENTES
 async function loadClis(){
   const {data}=await sb.from('clientes').select('*').eq('user_id',user.id).order('nome');
   clis=data||[];
-  renderClis(clis);
-  updateSelects();
+  renderClis(clis);updateSelects();
   document.getElementById('m-cli').textContent=clis.length;
 }
 
 function renderClis(lista){
   const el=document.getElementById('cli-list');
   if(!lista.length){el.innerHTML='<div class="empty">Nenhum cliente ainda.</div>';return;}
-  el.innerHTML=lista.map(c=>`
-    <div class="li" style="cursor:pointer" onclick="verCli('${c.id}')">
-      <div class="li-av">${ini(c.nome)}</div>
-      <div class="li-body"><div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div></div>
-      <div class="li-r">›</div>
-    </div>`).join('');
+  el.innerHTML=lista.map(c=>`<div class="li" style="cursor:pointer" onclick="verCli('${c.id}')"><div class="li-av">${ini(c.nome)}</div><div class="li-body"><div class="li-name">${c.nome}</div><div class="li-sub">${c.whatsapp||''}</div></div><div class="li-r">›</div></div>`).join('');
 }
 
 function filtrarCli(q){renderClis(clis.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase())));}
@@ -447,21 +525,14 @@ function updateSelects(){
 async function salvarCli(){
   const nome=document.getElementById('nc-nome').value.trim();
   if(!nome){alert('Nome obrigatório.');return;}
-  const {error}=await sb.from('clientes').insert({
-    user_id:user.id,nome,
-    whatsapp:document.getElementById('nc-wpp').value,
-    endereco:document.getElementById('nc-end').value,
-    cidade:document.getElementById('nc-cidade').value,
-    observacoes:document.getElementById('nc-obs').value
-  });
+  const {error}=await sb.from('clientes').insert({user_id:user.id,nome,whatsapp:document.getElementById('nc-wpp').value,endereco:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cidade').value,observacoes:document.getElementById('nc-obs').value});
   if(!error){['nc-nome','nc-wpp','nc-end','nc-cidade','nc-obs'].forEach(id=>document.getElementById(id).value='');await loadClis();go('s-clientes');}
   else alert('Erro: '+error.message);
 }
 
 async function verCli(id){
   cliAtual=id;
-  const c=clis.find(x=>x.id===id);
-  if(!c)return;
+  const c=clis.find(x=>x.id===id);if(!c)return;
   document.getElementById('fc-av').textContent=ini(c.nome);
   document.getElementById('fc-nome').textContent=c.nome;
   document.getElementById('fc-wpp').textContent=c.whatsapp||'—';
@@ -476,11 +547,7 @@ async function verCli(id){
   document.getElementById('fc-total').textContent='R$'+docs.filter(d=>d.tipo==='OS').reduce((s,d)=>s+(d.total||0),0).toLocaleString('pt-BR');
   const hist=document.getElementById('fc-hist');
   if(!docs.length){hist.innerHTML='<div class="empty" style="padding:16px 0">Nenhum documento ainda.</div>';return;}
-  hist.innerHTML=docs.map(d=>`
-    <div class="li">
-      <div class="li-av" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div>
-      <div class="li-body"><div class="li-name">${d.descricao||'—'}</div><div class="li-sub">${fmt(d.data)} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
-    </div>`).join('');
+  hist.innerHTML=docs.map(d=>`<div class="li" style="cursor:pointer" onclick="verDoc('${d.id}')"><div class="li-av" style="width:34px;height:34px;font-size:10px;border-radius:6px">${d.tipo}</div><div class="li-body"><div class="li-name">${d.descricao||'—'}</div><div class="li-sub">${fmt(d.data)} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div></div>`).join('');
 }
 
 function novoDocCli(){iniciarDoc('ORC');setTimeout(()=>{if(cliAtual)document.getElementById('doc-cli').value=cliAtual;},100);}
@@ -490,9 +557,8 @@ async function loadDocs(){
   const {data}=await sb.from('documentos').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
   document.getElementById('m-docs').textContent=docs.length;
-  const html=renderDocs(docs);
   document.getElementById('docs-home').innerHTML=renderDocs(docs.slice(0,5));
-  document.getElementById('docs-all').innerHTML=html;
+  document.getElementById('docs-all').innerHTML=renderDocs(docs);
 }
 
 function renderDocs(lista){
@@ -504,8 +570,10 @@ function renderDocs(lista){
         <div class="li-name">${d.clientes?.nome||'—'}</div>
         <div class="li-sub">${d.descricao||''} · R$ ${(d.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
         <div class="doc-actions">
+          <span class="doc-btn doc-btn-view" onclick="event.stopPropagation();verDoc('${d.id}')">👁 Ver</span>
+          <span class="doc-btn doc-btn-edit" onclick="event.stopPropagation();editarDoc('${d.id}')">✏️ Editar</span>
           <span class="doc-btn doc-btn-pdf" onclick="event.stopPropagation();gerarPDF('${d.id}')">📄 PDF</span>
-          <span class="doc-btn doc-btn-wpp" onclick="event.stopPropagation();enviarWpp('${d.id}')">💬 WhatsApp</span>
+          <span class="doc-btn doc-btn-wpp" onclick="event.stopPropagation();enviarWpp('${d.id}')">💬 WPP</span>
         </div>
       </div>
       <div class="li-r">${fmt(d.data)}</div>
@@ -513,19 +581,43 @@ function renderDocs(lista){
 }
 
 function iniciarDoc(tipo){
+  editandoId=null;
   docItens={pecas:[],servs:[],desps:[]};
   renderItens();
   document.getElementById('doc-tipo').value=tipo;
+  document.getElementById('doc-desc').value='';
+  document.getElementById('doc-manut').value='';
   onTipoChange();
+  go('s-novo-doc');
+}
+
+async function editarDoc(id){
+  const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',id).single();
+  if(!doc)return;
+  editandoId=id;
+  docItens=doc.itens||{pecas:[],servs:[],desps:[]};
+  if(!docItens.pecas)docItens.pecas=[];
+  if(!docItens.servs)docItens.servs=[];
+  if(!docItens.desps)docItens.desps=[];
+  document.getElementById('doc-tipo').value=doc.tipo;
+  document.getElementById('doc-desc').value=doc.descricao||'';
+  document.getElementById('doc-data').value=doc.data||'';
+  document.getElementById('doc-manut').value=doc.manutencao||'';
+  await loadClis();
+  document.getElementById('doc-cli').value=doc.cliente_id||'';
+  onTipoChange();
+  renderItens();
+  document.getElementById('doc-title').textContent='Editar documento';
   go('s-novo-doc');
 }
 
 function onTipoChange(){
   const t=document.getElementById('doc-tipo').value;
-  document.getElementById('doc-title').textContent=t==='OS'?'Ordem de Serviço':t==='ORC'?'Orçamento':'Laudo Técnico';
+  document.getElementById('doc-title').textContent=editandoId?'Editar documento':t==='OS'?'Ordem de Serviço':t==='ORC'?'Orçamento':'Laudo Técnico';
   document.getElementById('doc-desc-lbl').textContent=t==='OS'?'Serviço realizado':t==='ORC'?'Descrição':'Problema / diagnóstico';
   document.getElementById('doc-val-field').style.display=t==='ORC'?'flex':'none';
   document.getElementById('doc-itens-card').style.display=t==='LAUDO'?'none':'block';
+  document.getElementById('doc-manut-field').style.display=t==='OS'?'flex':'none';
 }
 
 function addItem(tipo){
@@ -543,21 +635,14 @@ function confirmarItem(){
   if(!desc){alert('Descrição obrigatória.');return;}
   docItens[tipo].push({desc,val});
   renderItens();
-  fecharModal();
-}
-
-function fecharModal(){
-  document.getElementById('modal-item').style.display='none';
+  fecharModal('modal-item');
 }
 
 function renderItens(){
   ['pecas','servs','desps'].forEach(t=>{
-    document.getElementById('doc-'+t).innerHTML=docItens[t].map((it,i)=>`
-      <div class="line-item">
-        <span class="ld">${it.desc}</span>
-        <span class="lv">R$ ${it.val.toFixed(2)}</span>
-        <span class="ldel" onclick="delItem('${t}',${i})">×</span>
-      </div>`).join('');
+    const el=document.getElementById('doc-'+t);
+    if(!el)return;
+    el.innerHTML=(docItens[t]||[]).map((it,i)=>`<div class="line-item"><span class="ld">${it.desc}</span><span class="lv">R$ ${it.val.toFixed(2)}</span><span class="ldel" onclick="delItem('${t}',${i})">×</span></div>`).join('');
   });
   calcTotal();
 }
@@ -565,7 +650,7 @@ function renderItens(){
 function delItem(t,i){docItens[t].splice(i,1);renderItens();}
 
 function calcTotal(){
-  const all=[...docItens.pecas,...docItens.servs,...docItens.desps];
+  const all=[...(docItens.pecas||[]),...(docItens.servs||[]),...(docItens.desps||[])];
   const total=all.reduce((s,it)=>s+it.val,0);
   document.getElementById('doc-total').textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
   return total;
@@ -576,14 +661,65 @@ async function salvarDoc(){
   const cliId=document.getElementById('doc-cli').value;
   if(!cliId){alert('Selecione um cliente.');return;}
   const total=calcTotal();
-  const {error}=await sb.from('documentos').insert({
-    user_id:user.id,cliente_id:cliId,tipo,
-    data:document.getElementById('doc-data').value,
-    descricao:document.getElementById('doc-desc').value,
-    total,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps}
-  });
-  if(!error){docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert('Documento salvo!');go('s-docs');}
+  const payload={user_id:user.id,cliente_id:cliId,tipo,data:document.getElementById('doc-data').value,descricao:document.getElementById('doc-desc').value,total,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:document.getElementById('doc-manut').value||null};
+  let error;
+  if(editandoId){
+    ({error}=await sb.from('documentos').update(payload).eq('id',editandoId));
+  } else {
+    ({error}=await sb.from('documentos').insert(payload));
+  }
+  if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert(editandoId?'Documento atualizado!':'Documento salvo!');go('s-docs');}
   else alert('Erro: '+error.message);
+}
+
+async function verDoc(id){
+  docAtual=id;
+  const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',id).single();
+  if(!doc)return;
+  const e=await getEmpresa();
+  const c=doc.clientes;
+  const it=doc.itens||{};
+
+  document.getElementById('view-empresa').textContent=e.nome||'Empresa';
+  document.getElementById('view-empresa-info').textContent=[e.cnpj,e.telefone].filter(Boolean).join(' · ')||'';
+  document.getElementById('view-tipo').textContent=doc.tipo==='OS'?'Ordem de Serviço':doc.tipo==='ORC'?'Orçamento':'Laudo Técnico';
+  document.getElementById('view-cli-nome').textContent=c?.nome||'—';
+  document.getElementById('view-cli-wpp').textContent=c?.whatsapp||'';
+  document.getElementById('view-cli-end').textContent=[c?.endereco,c?.cidade].filter(Boolean).join(', ')||'';
+  document.getElementById('view-data').textContent=fmtFull(doc.data);
+  document.getElementById('view-desc').textContent=doc.descricao||'—';
+
+  const badge=document.getElementById('view-manut-badge');
+  if(doc.manutencao){
+    badge.innerHTML=`<span class="badge-manut ${doc.manutencao==='preventiva'?'badge-prev':'badge-corr'}">${doc.manutencao==='preventiva'?'Preventiva':'Corretiva'}</span>`;
+  } else badge.innerHTML='';
+
+  const itensEl=document.getElementById('view-itens');
+  const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
+  if(all.length){
+    document.getElementById('view-itens-section').style.display='block';
+    itensEl.innerHTML=all.map(x=>`<div class="view-row"><span>${x.desc}</span><span>R$ ${x.val.toFixed(2)}</span></div>`).join('');
+    document.getElementById('view-total').textContent='R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  } else document.getElementById('view-itens-section').style.display='none';
+
+  if(e.pagamento){
+    document.getElementById('view-pag-section').style.display='block';
+    document.getElementById('view-pag').textContent=e.pagamento;
+  } else document.getElementById('view-pag-section').style.display='none';
+
+  go('s-view-doc');
+}
+
+function confirmarExcluir(id){
+  docAtual=id;
+  document.getElementById('modal-excluir').style.display='flex';
+}
+
+async function excluirDoc(){
+  if(!docAtual)return;
+  const {error}=await sb.from('documentos').delete().eq('id',docAtual);
+  if(!error){fecharModal('modal-excluir');await loadDocs();go('s-docs');}
+  else alert('Erro ao excluir: '+error.message);
 }
 
 // AGENDA
@@ -592,39 +728,18 @@ async function loadAgenda(){
   const ags=data||[];
   const hoje=new Date().toISOString().split('T')[0];
   const hj=ags.filter(a=>a.data===hoje);
-  if(hj.length){
-    document.getElementById('notif-hoje').style.display='flex';
-    document.getElementById('notif-txt').textContent=`Você tem ${hj.length} serviço(s) agendado(s) para hoje.`;
-  }
+  if(hj.length){document.getElementById('notif-hoje').style.display='flex';document.getElementById('notif-txt').textContent=`Você tem ${hj.length} serviço(s) agendado(s) para hoje.`;}
   const el=document.getElementById('agenda-list');
   if(!ags.length){el.innerHTML='<div class="empty">Nenhum agendamento ainda.</div>';return;}
   const grupos={};
   ags.forEach(a=>{if(!grupos[a.data])grupos[a.data]=[];grupos[a.data].push(a);});
-  el.innerHTML=Object.entries(grupos).map(([d,items])=>`
-    <div class="card">
-      <div class="card-title">${fmtLong(d)}</div>
-      ${items.map(a=>`
-        <div class="li">
-          <div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div>
-          <div class="li-body">
-            <div class="li-name">${a.clientes?.nome||'—'}</div>
-            <div class="li-sub">${a.descricao||''}</div>
-            <div class="li-sub">${a.endereco||''}</div>
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
+  el.innerHTML=Object.entries(grupos).map(([d,items])=>`<div class="card"><div class="card-title">${fmtLong(d)}</div>${items.map(a=>`<div class="li"><div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div><div class="li-body"><div class="li-name">${a.clientes?.nome||'—'}</div><div class="li-sub">${a.descricao||''}</div><div class="li-sub">${a.endereco||''}</div></div></div>`).join('')}</div>`).join('');
 }
 
 async function salvarAgend(){
   const cliId=document.getElementById('ag-cli').value;
   if(!cliId){alert('Selecione um cliente.');return;}
-  const {error}=await sb.from('agendamentos').insert({
-    user_id:user.id,cliente_id:cliId,
-    data:document.getElementById('ag-data').value,
-    hora:document.getElementById('ag-hora').value,
-    endereco:document.getElementById('ag-end').value,
-    descricao:document.getElementById('ag-desc').value
-  });
+  const {error}=await sb.from('agendamentos').insert({user_id:user.id,cliente_id:cliId,data:document.getElementById('ag-data').value,hora:document.getElementById('ag-hora').value,endereco:document.getElementById('ag-end').value,descricao:document.getElementById('ag-desc').value});
   if(!error){['ag-cli','ag-end','ag-desc'].forEach(id=>document.getElementById(id).value='');await loadAgenda();go('s-agenda');}
   else alert('Erro: '+error.message);
 }
@@ -644,15 +759,7 @@ async function loadEmpresa(){
 }
 
 async function salvarEmpresa(){
-  const {error}=await sb.from('empresa').upsert({
-    user_id:user.id,
-    nome:document.getElementById('cfg-empresa').value,
-    cnpj:document.getElementById('cfg-cnpj').value,
-    endereco:document.getElementById('cfg-end').value,
-    cidade:document.getElementById('cfg-cidade').value,
-    telefone:document.getElementById('cfg-tel').value,
-    pagamento:document.getElementById('cfg-pag').value
-  },{onConflict:'user_id'});
+  const {error}=await sb.from('empresa').upsert({user_id:user.id,nome:document.getElementById('cfg-empresa').value,cnpj:document.getElementById('cfg-cnpj').value,endereco:document.getElementById('cfg-end').value,cidade:document.getElementById('cfg-cidade').value,telefone:document.getElementById('cfg-tel').value,pagamento:document.getElementById('cfg-pag').value},{onConflict:'user_id'});
   if(!error)alert('Configurações salvas!');
   else alert('Erro: '+error.message);
 }
@@ -683,22 +790,28 @@ async function gerarPDF(docId){
   pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
   pdf.text(doc.tipo==='OS'?'ORDEM DE SERVIÇO':doc.tipo==='ORC'?'ORÇAMENTO':'LAUDO TÉCNICO',105,45,{align:'center'});
 
-  pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.text('Dados do Cliente',20,54);
-  pdf.setFont('helvetica','normal');
-  pdf.text(c?.nome||'—',20,60);
-  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,65);
-  if(c?.endereco)pdf.text(c.endereco,20,70);
-  pdf.setFont('helvetica','bold');pdf.text('Data: '+fmtFull(doc.data),150,60);
+  if(doc.manutencao){
+    pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+    pdf.text('Manutenção '+doc.manutencao.charAt(0).toUpperCase()+doc.manutencao.slice(1),105,51,{align:'center'});
+  }
 
-  pdf.setDrawColor(200);pdf.line(20,75,190,75);
-  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,82);
+  pdf.setTextColor(0);pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.text('Dados do Cliente',20,58);
+  pdf.setFont('helvetica','normal');
+  pdf.text(c?.nome||'—',20,64);
+  if(c?.whatsapp)pdf.text('Tel: '+c.whatsapp,20,69);
+  if(c?.endereco)pdf.text(c.endereco,20,74);
+  pdf.setFont('helvetica','bold');pdf.text('Data: '+fmtFull(doc.data),150,64);
+
+  pdf.setDrawColor(200);pdf.line(20,79,190,79);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,86);
   pdf.setFont('helvetica','normal');
   const dl=pdf.splitTextToSize(doc.descricao||'—',170);
-  pdf.text(dl,20,88);
+  pdf.text(dl,20,92);
 
-  let y=88+(dl.length*5)+6;
+  let y=92+(dl.length*5)+6;
 
-  if(it.pecas?.length||it.servs?.length||it.desps?.length){
+  const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
+  if(all.length){
     pdf.line(20,y,190,y);y+=7;
     pdf.setFillColor(50,50,50);pdf.rect(20,y-4,170,7,'F');
     pdf.setTextColor(255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
