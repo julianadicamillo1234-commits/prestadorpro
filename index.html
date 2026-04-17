@@ -84,15 +84,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .doc-btn-pdf{color:#f97316;border-color:#f97316}
 .doc-btn-wpp{color:#25d366;border-color:#25d366}
 .doc-btn-del{color:#e53e3e;border-color:#fecaca}
-/* MODAL */
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:24px}
-.modal-box{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.modal-box{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto}
 .modal-title{font-size:16px;font-weight:600}
-/* VISUALIZAÇÃO */
 .view-header{background:#f97316;color:#fff;padding:20px 16px}
 .view-empresa{font-size:16px;font-weight:600}
-.view-sub{font-size:12px;opacity:0.85;margin-top:2px}
-.view-tipo{font-size:11px;background:rgba(255,255,255,0.2);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:6px}
+.view-sub{font-size:12px;opacity:.85;margin-top:2px}
+.view-tipo{font-size:11px;background:rgba(255,255,255,.2);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:6px}
 .view-section{margin-bottom:12px}
 .view-section-title{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .view-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
@@ -101,6 +99,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge-manut{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;font-weight:500}
 .badge-prev{background:#e0f2fe;color:#0369a1}
 .badge-corr{background:#fee2e2;color:#b91c1c}
+/* CHECKLIST */
+.ck-section{margin-bottom:4px}
+.ck-section-title{font-size:12px;font-weight:600;color:#f97316;text-transform:uppercase;letter-spacing:.05em;padding:8px 0 6px;border-bottom:1px solid #f0f0f0;margin-bottom:8px}
+.ck-item{padding:10px 0;border-bottom:1px solid #f5f5f5}
+.ck-item:last-child{border-bottom:none}
+.ck-item-label{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:6px}
+.ck-item-desc{font-size:11px;color:#aaa;line-height:1.5;margin-bottom:8px}
+.ck-options{display:flex;gap:6px}
+.ck-opt{flex:1;padding:6px 4px;border:1px solid #e5e5e5;border-radius:8px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;transition:all .15s}
+.ck-opt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.ck-opt.ajuste{border-color:#f59e0b;background:#fffbeb;color:#b45309}
+.ck-opt.reparo{border-color:#ef4444;background:#fef2f2;color:#b91c1c}
+.ck-opt.selected-ok{background:#22c55e;color:#fff;border-color:#22c55e}
+.ck-opt.selected-ajuste{background:#f59e0b;color:#fff;border-color:#f59e0b}
+.ck-opt.selected-reparo{background:#ef4444;color:#fff;border-color:#ef4444}
+/* ASSINATURA */
+.sig-canvas{width:100%;height:160px;border:1px solid #e5e5e5;border-radius:10px;touch-action:none;cursor:crosshair;background:#fafafa}
+.sig-actions{display:flex;gap:8px;margin-top:8px}
+.sig-clear{flex:1;padding:8px;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -158,7 +175,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div onclick="go('s-agenda')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📅</div><div style="font-size:13px">Agenda</div></div>
           <div onclick="iniciarDoc('OS')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">🔧</div><div style="font-size:13px">Nova OS</div></div>
           <div onclick="iniciarDoc('ORC')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📄</div><div style="font-size:13px">Orçamento</div></div>
-          <div onclick="iniciarDoc('LAUDO')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📋</div><div style="font-size:13px">Laudo</div></div>
+          <div onclick="go('s-checklist')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">✅</div><div style="font-size:13px">Checklist</div></div>
         </div>
       </div>
       <div class="card"><div class="card-title">Documentos recentes</div><div id="docs-home"><div class="loading">Carregando...</div></div></div>
@@ -275,10 +292,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div onclick="iniciarDoc('OS')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">🔧</div><div style="font-size:13px">Nova OS</div></div>
         <div onclick="iniciarDoc('ORC')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📄</div><div style="font-size:13px">Orçamento</div></div>
         <div onclick="iniciarDoc('LAUDO')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">📋</div><div style="font-size:13px">Laudo</div></div>
+        <div onclick="go('s-checklist')" style="background:#fafafa;border:1px solid #efefef;border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:22px;margin-bottom:4px">✅</div><div style="font-size:13px">Checklist</div></div>
       </div>
       <div class="card" style="padding:0 14px">
         <div class="card-title" style="padding-top:14px">Todos os documentos</div>
         <div id="docs-all"><div class="loading">Carregando...</div></div>
+      </div>
+      <div class="card" style="padding:0 14px">
+        <div class="card-title" style="padding-top:14px">Checklists</div>
+        <div id="cklists-all"><div class="loading">Carregando...</div></div>
       </div>
     </div>
     <div class="nav">
@@ -369,11 +391,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <button class="btn-full" style="margin-top:0" onclick="gerarPDF(docAtual)">📄 Gerar PDF</button>
-        <button class="btn-full" style="margin-top:0;background:#25d366;border:none" onclick="enviarWpp(docAtual)">💬 WhatsApp</button>
+        <button class="btn-full" style="margin-top:0" onclick="gerarPDF(docAtual)">📄 PDF</button>
+        <button class="btn-full" style="margin-top:0;background:#25d366;border:none" onclick="enviarWpp(docAtual)">💬 WPP</button>
       </div>
-      <button class="btn-sec" onclick="editarDoc(docAtual)">✏️ Editar documento</button>
-      <button class="btn-danger" onclick="confirmarExcluir(docAtual)">🗑️ Excluir documento</button>
+      <button class="btn-sec" onclick="editarDoc(docAtual)">✏️ Editar</button>
+      <button class="btn-danger" onclick="confirmarExcluir(docAtual)">🗑️ Excluir</button>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="screen" id="s-checklist">
+    <div class="topbar"><span class="tb-back" onclick="go('s-docs')">← Docs</span><h2>Checklist Manutenção</h2></div>
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Identificação</div>
+        <div class="fg">
+          <div class="fl"><label>Cliente</label><select id="ck-cli"><option value="">Selecione...</option></select></div>
+          <div class="fl"><label>Unidade / Local</label><input type="text" id="ck-unidade" placeholder="Ex.: Hospital Municipal de Americana"></div>
+          <div class="fl"><label>Endereço</label><input type="text" id="ck-end" placeholder="Rua, número, cidade"></div>
+          <div class="fl"><label>Equipamento</label><input type="text" id="ck-equip" placeholder="Ex.: RaioX Fixo Siemens"></div>
+          <div class="fl"><label>Número de série</label><input type="text" id="ck-serie" placeholder="Ex.: 927"></div>
+          <div class="fl"><label>OS vinculada (opcional)</label><input type="text" id="ck-os" placeholder="Número da OS"></div>
+          <div class="fl"><label>Técnico responsável</label><input type="text" id="ck-tecnico" placeholder="Nome do técnico"></div>
+          <div class="fl"><label>Data</label><input type="date" id="ck-data"></div>
+        </div>
+      </div>
+
+      <div class="card" id="ck-itens-container"></div>
+
+      <div class="card">
+        <div class="card-title">Observações gerais</div>
+        <textarea rows="4" id="ck-obs" placeholder="Registre aqui observações, pendências ou recomendações..." style="width:100%;padding:9px 11px;border:1px solid #e5e5e5;border-radius:10px;font-size:14px;font-family:inherit;resize:none;outline:none"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Assinatura do técnico</div>
+        <div style="font-size:12px;color:#aaa;margin-bottom:8px">Assine com o dedo na área abaixo</div>
+        <canvas id="sig-canvas" class="sig-canvas"></canvas>
+        <div class="sig-actions">
+          <button class="sig-clear" onclick="limparAssinatura()">🗑️ Limpar assinatura</button>
+        </div>
+      </div>
+
+      <button class="btn-full" onclick="salvarChecklist()">salvar checklist</button>
+      <button class="btn-sec" onclick="go('s-docs')">cancelar</button>
     </div>
   </div>
 
@@ -404,7 +465,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-</div><!-- /main-app -->
+</div>
 
 <!-- MODAL ITEM -->
 <div class="modal-bg" id="modal-item">
@@ -418,7 +479,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<!-- MODAL EXCLUIR -->
 <div class="modal-bg" id="modal-excluir">
   <div class="modal-box">
     <div class="modal-title">Excluir documento</div>
@@ -428,7 +489,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-</div><!-- /app -->
+</div>
 
 <script>
 const SB_URL='https://lqebrbpwarmpubukppcs.supabase.co';
@@ -436,6 +497,30 @@ const SB_KEY='sb_publishable_ZWnhTb8zTu5uYc075oQ6Ig_qInWRfL4';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let user=null,clis=[],docItens={pecas:[],servs:[],desps:[]},cliAtual=null,docAtual=null,editandoId=null;
+
+// TEMPLATE CHECKLIST
+const CK_TEMPLATE=[
+  {secao:'Verificações Mecânicas e de Movimento',itens:[
+    {id:'cabos',label:'Cabos de Aço',desc:'Inspecionar cabos da coluna porta-tubo e bucky mural. Verificar presença de fios soltos, corrosão ou desgaste.'},
+    {id:'rolamentos',label:'Rolamentos e Trilhos',desc:'Inspecionar rolamentos da mesa, coluna e bucky mural. Verificar ruídos anormais, folgas excessivas ou travamentos.'},
+    {id:'freios',label:'Freios Magnéticos',desc:'Testar o acionamento e a eficiência dos freios da mesa, coluna e bucky mural.'},
+    {id:'parafusos',label:'Parafusos e Fixações',desc:'Realizar reaperto geral de todos os parafusos visíveis e fixações críticas do equipamento.'}
+  ]},
+  {secao:'Verificações Elétricas e Funcionais',itens:[
+    {id:'botoes',label:'Botões e Acionamentos',desc:'Testar o funcionamento de todos os botões no painel de comando, mesa, coluna e bucky.'},
+    {id:'colimador',label:'Colimador Luminoso',desc:'Verificar o funcionamento da luz do colimador. Checar se a luz se desliga automaticamente.'},
+    {id:'scopia',label:'Sistemas de Scopia e Grafia',desc:'Testar o funcionamento dos modos de fluoroscopia e radiografia. Verificar a comutação correta.'}
+  ]},
+  {secao:'Verificações de Alinhamento e Qualidade',itens:[
+    {id:'bucky',label:'Bucky Mural e de Mesa',desc:'Verificar o funcionamento do movimento e do sistema de travamento do bucky.'},
+    {id:'grades',label:'Alinhamento de Grades',desc:'Avaliar o alinhamento da grade com o campo de radiação para ambas as unidades.'},
+    {id:'colimacao',label:'Exatidão da Colimação',desc:'Verificar a correspondência entre o campo luminoso e o campo de radiação.'},
+    {id:'limpeza',label:'Limpeza e Estado Geral',desc:'Realizar limpeza externa do equipamento. Verificar ausência de danos físicos.'}
+  ]}
+];
+
+let ckRespostas={};
+let sigCanvas,sigCtx,sigDrawing=false,sigLastX=0,sigLastY=0;
 
 sb.auth.onAuthStateChange((_,s)=>{
   if(s){user=s.user;initApp();}
@@ -446,20 +531,15 @@ function showEl(id){document.getElementById(id).style.display='flex';}
 function hideEl(id){document.getElementById(id).style.display='none';}
 
 async function doLogin(){
-  const e=document.getElementById('login-email').value;
-  const p=document.getElementById('login-pass').value;
-  const err=document.getElementById('err-login');
-  err.style.display='none';
+  const e=document.getElementById('login-email').value,p=document.getElementById('login-pass').value;
+  const err=document.getElementById('err-login');err.style.display='none';
   const {error}=await sb.auth.signInWithPassword({email:e,password:p});
   if(error){err.textContent='E-mail ou senha incorretos.';err.style.display='block';}
 }
 
 async function doRegister(){
-  const nome=document.getElementById('reg-nome').value;
-  const e=document.getElementById('reg-email').value;
-  const p=document.getElementById('reg-pass').value;
-  const err=document.getElementById('err-reg');
-  err.style.display='none';
+  const nome=document.getElementById('reg-nome').value,e=document.getElementById('reg-email').value,p=document.getElementById('reg-pass').value;
+  const err=document.getElementById('err-reg');err.style.display='none';
   const {error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:nome}}});
   if(error){err.textContent=error.message;err.style.display='block';}
   else{err.style.background='#f0fff4';err.style.color='#276749';err.textContent='Conta criada! Pode fazer login agora.';err.style.display='block';}
@@ -483,8 +563,10 @@ async function initApp(){
   document.getElementById('cfg-nome').textContent=nome;
   document.getElementById('cfg-email').textContent=user.email;
   const t=new Date().toISOString().split('T')[0];
-  ['ag-data','doc-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
-  await Promise.all([loadClis(),loadDocs(),loadAgenda(),loadEmpresa()]);
+  ['ag-data','doc-data','ck-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
+  renderChecklistForm();
+  initSigCanvas();
+  await Promise.all([loadClis(),loadDocs(),loadAgenda(),loadEmpresa(),loadChecklists()]);
 }
 
 function go(id){
@@ -501,11 +583,186 @@ function goNav(id,el){
 
 function fecharModal(id){document.getElementById(id).style.display='none';}
 
+// CHECKLIST FORM
+function renderChecklistForm(){
+  const c=document.getElementById('ck-itens-container');
+  ckRespostas={};
+  c.innerHTML=CK_TEMPLATE.map(sec=>`
+    <div class="ck-section">
+      <div class="ck-section-title">${sec.secao}</div>
+      ${sec.itens.map(it=>`
+        <div class="ck-item">
+          <div class="ck-item-label">${it.label}</div>
+          <div class="ck-item-desc">${it.desc}</div>
+          <div class="ck-options">
+            <div class="ck-opt ok" id="opt-${it.id}-ok" onclick="selecionarOpt('${it.id}','ok')">✓ OK</div>
+            <div class="ck-opt ajuste" id="opt-${it.id}-ajuste" onclick="selecionarOpt('${it.id}','ajuste')">⚠ Ajuste</div>
+            <div class="ck-opt reparo" id="opt-${it.id}-reparo" onclick="selecionarOpt('${it.id}','reparo')">✗ Reparo</div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function selecionarOpt(id,val){
+  ckRespostas[id]=val;
+  ['ok','ajuste','reparo'].forEach(v=>{
+    const el=document.getElementById(`opt-${id}-${v}`);
+    if(!el)return;
+    el.className=`ck-opt ${v}`;
+    if(v===val)el.classList.add(`selected-${v}`);
+  });
+}
+
+// ASSINATURA
+function initSigCanvas(){
+  sigCanvas=document.getElementById('sig-canvas');
+  if(!sigCanvas)return;
+  sigCtx=sigCanvas.getContext('2d');
+  const rect=sigCanvas.getBoundingClientRect();
+  sigCanvas.width=rect.width||320;sigCanvas.height=160;
+  sigCtx.strokeStyle='#1a1a1a';sigCtx.lineWidth=2;sigCtx.lineCap='round';
+
+  sigCanvas.addEventListener('mousedown',e=>{sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLastX=e.clientX-r.left;sigLastY=e.clientY-r.top;});
+  sigCanvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLastX,sigLastY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLastX=x;sigLastY=y;});
+  sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
+  sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const r=sigCanvas.getBoundingClientRect();sigLastX=e.touches[0].clientX-r.left;sigLastY=e.touches[0].clientY-r.top;},{passive:false});
+  sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const r=sigCanvas.getBoundingClientRect();const x=e.touches[0].clientX-r.left,y=e.touches[0].clientY-r.top;sigCtx.beginPath();sigCtx.moveTo(sigLastX,sigLastY);sigCtx.lineTo(x,y);sigCtx.stroke();sigLastX=x;sigLastY=y;},{passive:false});
+  sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
+}
+
+function limparAssinatura(){
+  if(sigCtx)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+}
+
+function getAssinatura(){
+  if(!sigCanvas)return null;
+  const blank=document.createElement('canvas');blank.width=sigCanvas.width;blank.height=sigCanvas.height;
+  if(sigCanvas.toDataURL()===blank.toDataURL())return null;
+  return sigCanvas.toDataURL('image/png');
+}
+
+async function salvarChecklist(){
+  const cliId=document.getElementById('ck-cli').value;
+  if(!cliId){alert('Selecione um cliente.');return;}
+  const assinatura=getAssinatura();
+  const {error}=await sb.from('checklists').insert({
+    user_id:user.id,
+    cliente_id:cliId,
+    unidade:document.getElementById('ck-unidade').value,
+    endereco:document.getElementById('ck-end').value,
+    equipamento:document.getElementById('ck-equip').value,
+    numero_serie:document.getElementById('ck-serie').value,
+    ordem_servico:document.getElementById('ck-os').value,
+    tecnico:document.getElementById('ck-tecnico').value,
+    data:document.getElementById('ck-data').value,
+    itens:ckRespostas,
+    observacoes:document.getElementById('ck-obs').value,
+    assinatura:assinatura
+  });
+  if(!error){
+    await loadChecklists();
+    alert('Checklist salvo!');
+    go('s-docs');
+  } else alert('Erro: '+error.message);
+}
+
+async function loadChecklists(){
+  const {data}=await sb.from('checklists').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(10);
+  const lista=data||[];
+  const el=document.getElementById('cklists-all');
+  if(!lista.length){el.innerHTML='<div class="empty">Nenhum checklist ainda.</div>';return;}
+  el.innerHTML=lista.map(ck=>`
+    <div class="li">
+      <div class="li-av" style="font-size:16px">✅</div>
+      <div class="li-body">
+        <div class="li-name">${ck.clientes?.nome||'—'}</div>
+        <div class="li-sub">${ck.equipamento||''} · ${fmt(ck.data)}</div>
+        <div class="doc-actions">
+          <span class="doc-btn doc-btn-pdf" onclick="gerarPDFChecklist('${ck.id}')">📄 PDF</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function gerarPDFChecklist(ckId){
+  const {data:ck}=await sb.from('checklists').select('*,clientes(*)').eq('id',ckId).single();
+  if(!ck)return;
+  const e=await getEmpresa();
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  let y=15;
+
+  pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,y);y+=6;
+  pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
+  if(e.cnpj)pdf.text('CNPJ: '+e.cnpj,20,y);y+=5;
+  if(e.telefone)pdf.text('Tel: '+e.telefone,20,y);y+=5;
+  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=7;
+
+  pdf.setFontSize(12);pdf.setFont('helvetica','bold');pdf.setTextColor(0);
+  pdf.text('CHECKLIST DE MANUTENÇÃO PREVENTIVA',105,y,{align:'center'});y+=8;
+
+  pdf.setFontSize(9);pdf.setFont('helvetica','normal');
+  const campos=[
+    ['Unidade',ck.unidade||'—'],['Endereço',ck.endereco||'—'],
+    ['Equipamento',ck.equipamento||'—'],['Nº Série',ck.numero_serie||'—'],
+    ['OS',ck.ordem_servico||'—'],['Data',fmtFull(ck.data)]
+  ];
+  campos.forEach(([k,v])=>{
+    pdf.setFont('helvetica','bold');pdf.text(k+':',20,y);
+    pdf.setFont('helvetica','normal');pdf.text(v,60,y);y+=5;
+  });
+  y+=3;pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;
+
+  const itens=ck.itens||{};
+  CK_TEMPLATE.forEach(sec=>{
+    pdf.setFontSize(9);pdf.setFont('helvetica','bold');pdf.setTextColor(249,115,22);
+    pdf.text(sec.secao.toUpperCase(),20,y);y+=5;
+    pdf.setTextColor(0);
+    sec.itens.forEach(it=>{
+      if(y>265){pdf.addPage();y=20;}
+      const resp=itens[it.id]||'—';
+      const cor=resp==='ok'?[34,197,94]:resp==='ajuste'?[245,158,11]:resp==='reparo'?[239,68,68]:[150,150,150];
+      pdf.setFont('helvetica','normal');pdf.setFontSize(8);
+      pdf.text(it.label,22,y);
+      pdf.setTextColor(...cor);pdf.setFont('helvetica','bold');
+      pdf.text(resp==='ok'?'✓ OK':resp==='ajuste'?'⚠ Ajuste':resp==='reparo'?'✗ Reparo':'Não avaliado',160,y,{align:'right'});
+      pdf.setTextColor(0);y+=5;
+    });
+    y+=3;
+  });
+
+  if(ck.observacoes){
+    pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=6;
+    pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Observações Gerais',20,y);y+=5;
+    pdf.setFont('helvetica','normal');
+    const obsLines=pdf.splitTextToSize(ck.observacoes,170);
+    pdf.text(obsLines,20,y);y+=obsLines.length*5+4;
+  }
+
+  pdf.setDrawColor(200);pdf.line(20,y,190,y);y+=8;
+  pdf.setFont('helvetica','normal');pdf.setFontSize(9);
+  pdf.text('Técnico responsável: '+(ck.tecnico||'—'),20,y);y+=5;
+  pdf.text('Data: '+fmtFull(ck.data),20,y);y+=10;
+
+  if(ck.assinatura){
+    try{
+      pdf.text('Assinatura:',20,y);y+=4;
+      pdf.addImage(ck.assinatura,'PNG',20,y,80,30);y+=35;
+    }catch(e){}
+  } else {
+    pdf.line(20,y,100,y);y+=5;
+    pdf.setFontSize(8);pdf.setTextColor(150);pdf.text('Assinatura do técnico',20,y);
+  }
+
+  pdf.setFontSize(8);pdf.setTextColor(150);
+  pdf.text(e.nome||'PrestadorPro',105,285,{align:'center'});
+  pdf.save(`CHECKLIST-${(ck.clientes?.nome||'doc').replace(/ /g,'_')}-${ck.data}.pdf`);
+}
+
 // CLIENTES
 async function loadClis(){
   const {data}=await sb.from('clientes').select('*').eq('user_id',user.id).order('nome');
-  clis=data||[];
-  renderClis(clis);updateSelects();
+  clis=data||[];renderClis(clis);updateSelects();
   document.getElementById('m-cli').textContent=clis.length;
 }
 
@@ -519,7 +776,7 @@ function filtrarCli(q){renderClis(clis.filter(c=>c.nome.toLowerCase().includes(q
 
 function updateSelects(){
   const opts=clis.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
-  ['ag-cli','doc-cli'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+opts;});
+  ['ag-cli','doc-cli','ck-cli'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione...</option>'+opts;});
 }
 
 async function salvarCli(){
@@ -531,8 +788,7 @@ async function salvarCli(){
 }
 
 async function verCli(id){
-  cliAtual=id;
-  const c=clis.find(x=>x.id===id);if(!c)return;
+  cliAtual=id;const c=clis.find(x=>x.id===id);if(!c)return;
   document.getElementById('fc-av').textContent=ini(c.nome);
   document.getElementById('fc-nome').textContent=c.nome;
   document.getElementById('fc-wpp').textContent=c.whatsapp||'—';
@@ -552,7 +808,7 @@ async function verCli(id){
 
 function novoDocCli(){iniciarDoc('ORC');setTimeout(()=>{if(cliAtual)document.getElementById('doc-cli').value=cliAtual;},100);}
 
-// DOCUMENTOS
+// DOCS
 async function loadDocs(){
   const {data}=await sb.from('documentos').select('*,clientes(nome)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);
   const docs=data||[];
@@ -581,14 +837,11 @@ function renderDocs(lista){
 }
 
 function iniciarDoc(tipo){
-  editandoId=null;
-  docItens={pecas:[],servs:[],desps:[]};
-  renderItens();
+  editandoId=null;docItens={pecas:[],servs:[],desps:[]};renderItens();
   document.getElementById('doc-tipo').value=tipo;
   document.getElementById('doc-desc').value='';
   document.getElementById('doc-manut').value='';
-  onTipoChange();
-  go('s-novo-doc');
+  onTipoChange();go('s-novo-doc');
 }
 
 async function editarDoc(id){
@@ -605,8 +858,7 @@ async function editarDoc(id){
   document.getElementById('doc-manut').value=doc.manutencao||'';
   await loadClis();
   document.getElementById('doc-cli').value=doc.cliente_id||'';
-  onTipoChange();
-  renderItens();
+  onTipoChange();renderItens();
   document.getElementById('doc-title').textContent='Editar documento';
   go('s-novo-doc');
 }
@@ -633,18 +885,14 @@ function confirmarItem(){
   const desc=document.getElementById('modal-desc').value.trim();
   const val=parseFloat(document.getElementById('modal-val').value||'0');
   if(!desc){alert('Descrição obrigatória.');return;}
-  docItens[tipo].push({desc,val});
-  renderItens();
-  fecharModal('modal-item');
+  docItens[tipo].push({desc,val});renderItens();fecharModal('modal-item');
 }
 
 function renderItens(){
   ['pecas','servs','desps'].forEach(t=>{
-    const el=document.getElementById('doc-'+t);
-    if(!el)return;
+    const el=document.getElementById('doc-'+t);if(!el)return;
     el.innerHTML=(docItens[t]||[]).map((it,i)=>`<div class="line-item"><span class="ld">${it.desc}</span><span class="lv">R$ ${it.val.toFixed(2)}</span><span class="ldel" onclick="delItem('${t}',${i})">×</span></div>`).join('');
-  });
-  calcTotal();
+  });calcTotal();
 }
 
 function delItem(t,i){docItens[t].splice(i,1);renderItens();}
@@ -663,12 +911,9 @@ async function salvarDoc(){
   const total=calcTotal();
   const payload={user_id:user.id,cliente_id:cliId,tipo,data:document.getElementById('doc-data').value,descricao:document.getElementById('doc-desc').value,total,itens:{pecas:docItens.pecas,servs:docItens.servs,desps:docItens.desps},manutencao:document.getElementById('doc-manut').value||null};
   let error;
-  if(editandoId){
-    ({error}=await sb.from('documentos').update(payload).eq('id',editandoId));
-  } else {
-    ({error}=await sb.from('documentos').insert(payload));
-  }
-  if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert(editandoId?'Documento atualizado!':'Documento salvo!');go('s-docs');}
+  if(editandoId){({error}=await sb.from('documentos').update(payload).eq('id',editandoId));}
+  else{({error}=await sb.from('documentos').insert(payload));}
+  if(!error){editandoId=null;docItens={pecas:[],servs:[],desps:[]};await loadDocs();alert(editandoId?'Atualizado!':'Salvo!');go('s-docs');}
   else alert('Erro: '+error.message);
 }
 
@@ -676,10 +921,7 @@ async function verDoc(id){
   docAtual=id;
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',id).single();
   if(!doc)return;
-  const e=await getEmpresa();
-  const c=doc.clientes;
-  const it=doc.itens||{};
-
+  const e=await getEmpresa();const c=doc.clientes;const it=doc.itens||{};
   document.getElementById('view-empresa').textContent=e.nome||'Empresa';
   document.getElementById('view-empresa-info').textContent=[e.cnpj,e.telefone].filter(Boolean).join(' · ')||'';
   document.getElementById('view-tipo').textContent=doc.tipo==='OS'?'Ordem de Serviço':doc.tipo==='ORC'?'Orçamento':'Laudo Técnico';
@@ -688,38 +930,27 @@ async function verDoc(id){
   document.getElementById('view-cli-end').textContent=[c?.endereco,c?.cidade].filter(Boolean).join(', ')||'';
   document.getElementById('view-data').textContent=fmtFull(doc.data);
   document.getElementById('view-desc').textContent=doc.descricao||'—';
-
   const badge=document.getElementById('view-manut-badge');
-  if(doc.manutencao){
-    badge.innerHTML=`<span class="badge-manut ${doc.manutencao==='preventiva'?'badge-prev':'badge-corr'}">${doc.manutencao==='preventiva'?'Preventiva':'Corretiva'}</span>`;
-  } else badge.innerHTML='';
-
-  const itensEl=document.getElementById('view-itens');
+  if(doc.manutencao)badge.innerHTML=`<span class="badge-manut ${doc.manutencao==='preventiva'?'badge-prev':'badge-corr'}">${doc.manutencao==='preventiva'?'Preventiva':'Corretiva'}</span>`;
+  else badge.innerHTML='';
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
   if(all.length){
     document.getElementById('view-itens-section').style.display='block';
-    itensEl.innerHTML=all.map(x=>`<div class="view-row"><span>${x.desc}</span><span>R$ ${x.val.toFixed(2)}</span></div>`).join('');
+    document.getElementById('view-itens').innerHTML=all.map(x=>`<div class="view-row"><span>${x.desc}</span><span>R$ ${x.val.toFixed(2)}</span></div>`).join('');
     document.getElementById('view-total').textContent='R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  } else document.getElementById('view-itens-section').style.display='none';
-
-  if(e.pagamento){
-    document.getElementById('view-pag-section').style.display='block';
-    document.getElementById('view-pag').textContent=e.pagamento;
-  } else document.getElementById('view-pag-section').style.display='none';
-
+  }else document.getElementById('view-itens-section').style.display='none';
+  if(e.pagamento){document.getElementById('view-pag-section').style.display='block';document.getElementById('view-pag').textContent=e.pagamento;}
+  else document.getElementById('view-pag-section').style.display='none';
   go('s-view-doc');
 }
 
-function confirmarExcluir(id){
-  docAtual=id;
-  document.getElementById('modal-excluir').style.display='flex';
-}
+function confirmarExcluir(id){docAtual=id;document.getElementById('modal-excluir').style.display='flex';}
 
 async function excluirDoc(){
   if(!docAtual)return;
   const {error}=await sb.from('documentos').delete().eq('id',docAtual);
   if(!error){fecharModal('modal-excluir');await loadDocs();go('s-docs');}
-  else alert('Erro ao excluir: '+error.message);
+  else alert('Erro: '+error.message);
 }
 
 // AGENDA
@@ -731,8 +962,7 @@ async function loadAgenda(){
   if(hj.length){document.getElementById('notif-hoje').style.display='flex';document.getElementById('notif-txt').textContent=`Você tem ${hj.length} serviço(s) agendado(s) para hoje.`;}
   const el=document.getElementById('agenda-list');
   if(!ags.length){el.innerHTML='<div class="empty">Nenhum agendamento ainda.</div>';return;}
-  const grupos={};
-  ags.forEach(a=>{if(!grupos[a.data])grupos[a.data]=[];grupos[a.data].push(a);});
+  const grupos={};ags.forEach(a=>{if(!grupos[a.data])grupos[a.data]=[];grupos[a.data].push(a);});
   el.innerHTML=Object.entries(grupos).map(([d,items])=>`<div class="card"><div class="card-title">${fmtLong(d)}</div>${items.map(a=>`<div class="li"><div style="font-size:12px;color:#aaa;min-width:40px">${a.hora||''}</div><div class="li-body"><div class="li-name">${a.clientes?.nome||'—'}</div><div class="li-sub">${a.descricao||''}</div><div class="li-sub">${a.endereco||''}</div></div></div>`).join('')}</div>`).join('');
 }
 
@@ -769,15 +999,14 @@ async function getEmpresa(){
   catch(e){return{};}
 }
 
-// PDF
+// PDF DOCUMENTO
 async function gerarPDF(docId){
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',docId).single();
   if(!doc){alert('Documento não encontrado.');return;}
   const e=await getEmpresa();
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF();
-  const c=doc.clientes;
-  const it=doc.itens||{};
+  const c=doc.clientes;const it=doc.itens||{};
 
   pdf.setFontSize(13);pdf.setFont('helvetica','bold');pdf.text(e.nome||'Empresa',20,18);
   pdf.setFontSize(8);pdf.setFont('helvetica','normal');pdf.setTextColor(100);
@@ -805,9 +1034,7 @@ async function gerarPDF(docId){
   pdf.setDrawColor(200);pdf.line(20,79,190,79);
   pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text('Descrição',20,86);
   pdf.setFont('helvetica','normal');
-  const dl=pdf.splitTextToSize(doc.descricao||'—',170);
-  pdf.text(dl,20,92);
-
+  const dl=pdf.splitTextToSize(doc.descricao||'—',170);pdf.text(dl,20,92);
   let y=92+(dl.length*5)+6;
 
   const all=[...(it.pecas||[]),...(it.servs||[]),...(it.desps||[])];
@@ -817,7 +1044,6 @@ async function gerarPDF(docId){
     pdf.setTextColor(255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
     pdf.text('Descrição',22,y);pdf.text('Valor',170,y,{align:'right'});
     pdf.setTextColor(0);y+=6;
-
     const sec=(lista,titulo)=>{
       if(!lista?.length)return;
       pdf.setFont('helvetica','bold');pdf.setTextColor(100);pdf.text(titulo,20,y);y+=5;
@@ -828,32 +1054,28 @@ async function gerarPDF(docId){
       });
     };
     sec(it.pecas,'Peças');sec(it.servs,'Serviços');sec(it.desps,'Despesas');
-
     pdf.line(20,y,190,y);y+=6;
     pdf.setFont('helvetica','normal');pdf.setFontSize(9);
     pdf.text('Subtotal',130,y);pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=6;
     pdf.setFont('helvetica','bold');pdf.setFontSize(10);
     pdf.text('Total',130,y);pdf.text('R$ '+(doc.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),170,y,{align:'right'});y+=8;
   }
-
   if(e.pagamento){
     pdf.line(20,y,190,y);y+=6;
     pdf.setFont('helvetica','bold');pdf.setFontSize(8);pdf.text('Condições de Pagamento',20,y);y+=5;
     pdf.setFont('helvetica','normal');
     const pl=pdf.splitTextToSize(e.pagamento,170);pdf.text(pl,20,y);
   }
-
   pdf.setFontSize(8);pdf.setTextColor(150);
   pdf.text(e.nome||'PrestadorPro',105,280,{align:'center'});
   if(e.telefone)pdf.text(e.telefone,105,285,{align:'center'});
-
   pdf.save(`${doc.tipo}-${(c?.nome||'doc').replace(/ /g,'_')}-${doc.data}.pdf`);
 }
 
 // WHATSAPP
 async function enviarWpp(docId){
   const {data:doc}=await sb.from('documentos').select('*,clientes(*)').eq('id',docId).single();
-  if(!doc){alert('Documento não encontrado.');return;}
+  if(!doc)return;
   const c=doc.clientes;
   const wpp=c?.whatsapp?.replace(/\D/g,'');
   if(!wpp){alert('Cliente não tem WhatsApp cadastrado.');return;}
